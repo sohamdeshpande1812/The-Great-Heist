@@ -8,7 +8,7 @@ export class InteractiveSafe {
     this.lootItem = lootItem;
     this.name = options.name || (lootItem && lootItem.type ? lootItem.type.name : 'Valuable Bullion');
     this.label = options.label || 'HEAVY ARMORED SAFE';
-    this.interactionRadius = 2.6;
+    this.interactionRadius = 3.2;
 
     this.isOpen = false;
     this.openProgress = 0;

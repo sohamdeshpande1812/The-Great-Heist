@@ -612,8 +612,15 @@ export class FacilityMap {
     this.addSolidProp(Props.createWarehouseRack(new THREE.Vector3(-16.0, y, -15), Math.PI / 2));
     this.addSolidProp(Props.createWarehouseRack(new THREE.Vector3(-12.0, y, -0.6), Math.PI));
 
-    // High-Security Caged Vault Enclosure
-    this.addSolidProp(Props.createSecurityCageVault(new THREE.Vector3(-14.5, y, -8), Math.PI / 2));
+    // High-Security Caged Vault Enclosure (Structure rendered with open walk-in front)
+    const cageVault = Props.createSecurityCageVault(new THREE.Vector3(-14.5, y, -8), Math.PI / 2);
+    this.scene.add(cageVault.group);
+
+    // Colliders ONLY for the three perimeter wire-mesh walls (West back, South side, North side)
+    // The entire front entrance facing East (X >= -12.6) is completely open and unobstructed!
+    this.physics.addCollider(new THREE.Box3(new THREE.Vector3(-16.5, y, -10.2), new THREE.Vector3(-16.0, y + 3.2, -5.8))); // Back mesh wall
+    this.physics.addCollider(new THREE.Box3(new THREE.Vector3(-16.5, y, -10.2), new THREE.Vector3(-12.6, y + 3.2, -9.8))); // South mesh wall
+    this.physics.addCollider(new THREE.Box3(new THREE.Vector3(-16.5, y, -6.2), new THREE.Vector3(-12.6, y + 3.2, -5.8))); // North mesh wall
 
     // Palletized Gold & Pallet Jack
     this.addSolidProp(Props.createVaultGoldPallet(new THREE.Vector3(-10.5, y, -8), 0));
@@ -1193,7 +1200,7 @@ export class FacilityMap {
     // --- 2. INTERACTIVE HEAVY SAFES (Gold Coins, Bullion, Safe Diamonds) ---
     const safeConfigs = [
       // Ground Floor: Storage & Supply Depot (Inside High-Security Caged Vault!)
-      { type: 'GOLD', lootPos: new THREE.Vector3(-14.6, 0.45, -8), safePos: new THREE.Vector3(-14.8, 0, -8), rot: Math.PI / 2, name: 'Storage Vault Safe' },
+      { type: 'GOLD', lootPos: new THREE.Vector3(-12.8, 0.45, -8), safePos: new THREE.Vector3(-13.0, 0, -8), rot: Math.PI / 2, name: 'Storage Vault Safe' },
       // Ground Floor: Security HQ
       { type: 'GOLD', lootPos: new THREE.Vector3(-15.6, 0.45, 14), safePos: new THREE.Vector3(-15.8, 0, 14), rot: Math.PI / 2, name: 'Security HQ Safe' },
       // Ground Floor: Admin Finance
@@ -1238,7 +1245,7 @@ export class FacilityMap {
       { type: 'GOLD', pos: new THREE.Vector3(-10.5, 0.55, -8) },       // On Gold Bullion Pallet beside Pallet Jack
       { type: 'WATCH', pos: new THREE.Vector3(-7.2, 0.9, -15) },       // On Logistics Shipping Desk
       { type: 'WATCH', pos: new THREE.Vector3(15.6, 0.95, 19) },       // In plain sight on Garage Mechanic's Workbench
-      { type: 'GOLD', pos: new THREE.Vector3(10.5, 0.9, 8) },          // In lockbox inside Getaway Van
+      { type: 'GOLD', pos: new THREE.Vector3(7.6, 0.45, 8.0) },        // In open lockbox beside Getaway Van walkway
       { type: 'WATCH', pos: new THREE.Vector3(15.8, 0.9, -9) },        // In luxury case on Admin Credenza Sideboard
       { type: 'GOLD', pos: new THREE.Vector3(8.0, 0.85, -8) },         // On Admin Bullpen Desk
       { type: 'GOLD', pos: new THREE.Vector3(7.5, 0.95, -21.4) },      // On Admin Coffee Station Counter

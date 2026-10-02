@@ -71,7 +71,7 @@ export class LootItem {
     this.mesh.position.copy(position);
     this.isCollected = false;
     this.inContainer = false;
-    this.interactionRadius = 2.4;
+    this.interactionRadius = 2.8;
   }
 
   createMesh() {

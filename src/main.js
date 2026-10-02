@@ -547,7 +547,7 @@ class Game {
 
   checkInteractionTarget() {
     let nearestInteractive = null;
-    let minDist = 3.2;
+    let minDist = 3.6;
 
     const isLockdown = this.securitySystem.isAlarmActive;
     const secLeft = Math.max(1, Math.ceil(this.securitySystem.alarmTimer));
