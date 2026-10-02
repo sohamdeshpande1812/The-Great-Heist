@@ -561,7 +561,7 @@ html, body {
 .inventory-popup {
   position: absolute;
   bottom: 75px;
-  left: 24px;
+  left: 264px;
   width: 360px;
   max-height: 420px;
   background: rgba(15, 23, 42, 0.96);
@@ -2230,8 +2230,8 @@ kbd {
 /* Cyberpunk Webcam Gesture PIP HUD */
 .webcam-pip-container {
   position: fixed;
-  bottom: 24px;
-  right: 214px;
+  top: 215px;
+  left: 24px;
   width: 230px;
   background: rgba(10, 16, 32, 0.94);
   border: 1px solid var(--neon-cyan);
@@ -2248,6 +2248,8 @@ kbd {
 
 .webcam-pip-container.minimized {
   width: 200px;
+  top: 215px;
+  left: 24px;
 }
 
 .webcam-pip-container.minimized .webcam-pip-body,
@@ -2564,9 +2566,13 @@ kbd {
 
 @media (max-width: 840px) {
   .webcam-pip-container {
-    right: 16px;
-    bottom: 230px;
+    top: 205px;
+    left: 12px;
     width: 200px;
   }
+  .inventory-popup {
+    left: 12px;
+  }
 }
+
 
