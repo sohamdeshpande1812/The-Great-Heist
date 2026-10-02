@@ -1267,8 +1267,8 @@ export class FacilityMap {
       { type: 'GOLD', pos: new THREE.Vector3(15.6, 8.95, -12.0) },      // On Boardroom Credenza Sideboard
 
       // Underground Vault Level:
-      { type: 'DIAMOND', pos: new THREE.Vector3(-10.5, -6.8, 12) },    // In Switch B Control Console
-      { type: 'DIAMOND', pos: new THREE.Vector3(10.5, -6.8, 12) },     // In Switch A Control Console
+      { type: 'DIAMOND', pos: new THREE.Vector3(-10.5, -7.0, 19.0) },    // On Tech Workstation Desk in Substation B
+      { type: 'DIAMOND', pos: new THREE.Vector3(10.5, -7.0, 19.0) },     // On Tech Workstation Desk in Reactor A
       { type: 'PROTOTYPE', pos: new THREE.Vector3(-12.0, -6.8, -21.4) }, // On Evidence Shelving
       { type: 'GOLD', pos: new THREE.Vector3(8.5, -6.8, -6) },         // On Vault Gold Pallet 1
       { type: 'GOLD', pos: new THREE.Vector3(13.5, -6.8, -6) },        // On Vault Gold Pallet 2
