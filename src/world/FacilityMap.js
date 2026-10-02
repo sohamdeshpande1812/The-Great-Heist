@@ -439,6 +439,15 @@ export class FacilityMap {
       this.propsList.push(prop);
     }
 
+    if (prop.colliderBox) {
+      this.physics.addCollider(prop.colliderBox);
+      return prop;
+    }
+    if (prop.colliderBoxes && Array.isArray(prop.colliderBoxes)) {
+      prop.colliderBoxes.forEach(b => this.physics.addCollider(b));
+      return prop;
+    }
+
     group.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(group);
     const height = box.max.y - box.min.y;

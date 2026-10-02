@@ -2292,7 +2292,15 @@ export class Props {
     ring.position.y = 0.02;
     group.add(ring);
 
-    return { group };
+    // Compact solid collider tightly fit to the totem column (0.4m x 0.4m),
+    // ignoring the 1.4m wide floor ring and overhang so player can step up to the kiosk
+    const colHalf = 0.20;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 1.8, position.z + colHalf)
+    );
+
+    return { group, colliderBox };
   }
 
   // Ultra-Thin Executive Area Rug
