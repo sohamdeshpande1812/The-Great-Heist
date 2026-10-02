@@ -72,9 +72,9 @@ export class HUD {
     this.isGestureActive = false;
 
     this.vaultHudStatus = document.getElementById('hud-vault-status');
+    try { localStorage.removeItem('heist_cam_pip_pos'); } catch (e) {}
 
     this.setupEventListeners();
-    this.initDraggablePip();
   }
 
   setupEventListeners() {
@@ -368,99 +368,5 @@ export class HUD {
       this.pipCamDot.className = 'pip-pulse-dot warning';
       this.gestureNameEl.textContent = 'STANDBY';
     }
-  }
-
-  initDraggablePip() {
-    if (!this.webcamPip) return;
-    const header = this.webcamPip.querySelector('.webcam-pip-header');
-    if (!header) return;
-
-    // Restore saved position from localStorage if valid
-    try {
-      const saved = localStorage.getItem('heist_cam_pip_pos');
-      if (saved) {
-        const { left, top } = JSON.parse(saved);
-        if (
-          typeof left === 'number' &&
-          typeof top === 'number' &&
-          left >= 0 &&
-          left <= window.innerWidth - 100 &&
-          top >= 0 &&
-          top <= window.innerHeight - 50
-        ) {
-          this.webcamPip.style.left = `${left}px`;
-          this.webcamPip.style.top = `${top}px`;
-          this.webcamPip.style.right = 'auto';
-          this.webcamPip.style.bottom = 'auto';
-        }
-      }
-    } catch (e) {
-      // Ignore storage errors
-    }
-
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-
-    const onPointerDown = (e) => {
-      // Do not drag if user clicked minimize or close buttons
-      if (e.target.closest('.btn-pip-action')) return;
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-
-      const rect = this.webcamPip.getBoundingClientRect();
-      initialLeft = rect.left;
-      initialTop = rect.top;
-
-      this.webcamPip.style.left = `${initialLeft}px`;
-      this.webcamPip.style.top = `${initialTop}px`;
-      this.webcamPip.style.right = 'auto';
-      this.webcamPip.style.bottom = 'auto';
-
-      document.addEventListener('pointermove', onPointerMove);
-      document.addEventListener('pointerup', onPointerUp);
-    };
-
-    const onPointerMove = (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-
-      const width = this.webcamPip.offsetWidth || 230;
-      const height = this.webcamPip.offsetHeight || 200;
-
-      const minLeft = 10;
-      const maxLeft = Math.max(10, window.innerWidth - width - 10);
-      const minTop = 10;
-      const maxTop = Math.max(10, window.innerHeight - height - 10);
-
-      const newLeft = Math.min(Math.max(initialLeft + dx, minLeft), maxLeft);
-      const newTop = Math.min(Math.max(initialTop + dy, minTop), maxTop);
-
-      this.webcamPip.style.left = `${Math.round(newLeft)}px`;
-      this.webcamPip.style.top = `${Math.round(newTop)}px`;
-    };
-
-    const onPointerUp = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      document.removeEventListener('pointermove', onPointerMove);
-      document.removeEventListener('pointerup', onPointerUp);
-
-      const rect = this.webcamPip.getBoundingClientRect();
-      try {
-        localStorage.setItem(
-          'heist_cam_pip_pos',
-          JSON.stringify({ left: Math.round(rect.left), top: Math.round(rect.top) })
-        );
-      } catch (e) {
-        // Ignore storage errors
-      }
-    };
-
-    header.addEventListener('pointerdown', onPointerDown);
   }
 }
