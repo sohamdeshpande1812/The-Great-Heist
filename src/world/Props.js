@@ -833,8 +833,17 @@ export class Props {
     dish.rotation.y = 0.8;
     group.add(dish);
 
+    // Slim solid collider fitted tightly to the support post (0.4m x 0.4m),
+    // ignoring the 2.8m diameter overhead dish up at y=2.6m so players can walk freely underneath
+    const colHalf = 0.20;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 2.5, position.z + colHalf)
+    );
+
     return {
       group,
+      colliderBox,
       update(delta, time) {
         dish.rotation.y += delta * 0.2;
       }
@@ -3251,7 +3260,14 @@ export class Props {
     shade.position.set(1.4, 2.1, 0);
     group.add(shade);
 
-    return { group };
+    // Slim solid collider fitted to marble base (0.5m x 0.5m), ignoring high overhead arc arm at y=2.2m
+    const colHalf = 0.25;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 2.2, position.z + colHalf)
+    );
+
+    return { group, colliderBox };
   }
 
   // Massive Ultra-Wide Corporate Presentation Video Wall
@@ -3522,7 +3538,14 @@ export class Props {
       group.add(lens);
     });
 
-    return { group };
+    // Slim solid collider fitted to the mast column (0.4m x 0.4m), ignoring the high overhead 1.2m crossarm at y=4.2m
+    const colHalf = 0.20;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 2.4, position.z + colHalf)
+    );
+
+    return { group, colliderBox };
   }
 
   // Illuminated Aviation Windsock & Weather Mast
@@ -3569,7 +3592,14 @@ export class Props {
     beacon.position.set(0, h + 0.08, 0);
     group.add(beacon);
 
-    return { group };
+    // Slim solid collider fitted to the mast pole (0.3m x 0.3m), ignoring the windsock cone in the air at y=3.6m
+    const colHalf = 0.15;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 2.4, position.z + colHalf)
+    );
+
+    return { group, colliderBox };
   }
 
   // Communications Lattice Mast with Flashing Obstruction Beacon
@@ -3607,7 +3637,14 @@ export class Props {
     beacon.position.set(0, h + 0.12, 0);
     group.add(beacon);
 
-    return { group };
+    // Slim solid collider fitted to the antenna mast base (0.35m x 0.35m), ignoring high dipoles overhead
+    const colHalf = 0.18;
+    const colliderBox = new THREE.Box3(
+      new THREE.Vector3(position.x - colHalf, position.y, position.z - colHalf),
+      new THREE.Vector3(position.x + colHalf, position.y + 2.4, position.z + colHalf)
+    );
+
+    return { group, colliderBox };
   }
 
   // Rooftop Stairwell & Service Elevator Penthouse Bulkhead
