@@ -54,8 +54,8 @@ class Game {
     // Game Session Stats
     this.playerName = 'CYBER_GHOST';
     this.difficulty = 'normal';
-    this.matchDuration = 1800; // 30 minutes default
-    this.timeRemaining = 1800;
+    this.matchDuration = 900; // 15 minutes default
+    this.timeRemaining = 900;
     this.timeElapsed = 0;
 
     // Timer tracking
@@ -94,9 +94,6 @@ class Game {
       onSettingsChanged: (cfg) => {
         if (cfg.sens) this.input.setSensitivity(cfg.sens);
         if (cfg.graphics) this.renderer.setGraphicsQuality(cfg.graphics);
-        if (cfg.gestureEnabled !== undefined && cfg.gestureEnabled !== this.isGestureControlActive) {
-          this.toggleGestureControl(cfg.gestureEnabled);
-        }
         if (cfg.gesturePip === 'minimized') {
           this.hud.webcamPip?.classList.add('minimized');
         } else if (cfg.gesturePip === 'hidden') {
@@ -159,9 +156,18 @@ class Game {
       }
     };
 
+    let lastMovementReminderTime = 0;
+    this.input.callbacks.onKeyboardMovementAttempt = () => {
+      const now = performance.now();
+      if (now - lastMovementReminderTime > 3500 && this.state === 'PLAYING') {
+        lastMovementReminderTime = now;
+        this.hud.showToast('🖐️ Operative is controlled using 3 Hand Gestures + Mouse Look (Open Palm = Walk, Pinch = Interact, Fist = Stop)', 'info');
+      }
+    };
+
     this.input.callbacks.onToggleGesture = () => {
-      if (this.state === 'PLAYING') {
-        this.toggleGestureControl(!this.isGestureControlActive);
+      if (this.state === 'PLAYING' && this.hud.webcamPip) {
+        this.hud.webcamPip.classList.toggle('hidden');
       }
     };
 
@@ -280,25 +286,22 @@ class Game {
     });
   }
 
-  async toggleGestureControl(enable) {
+  async toggleGestureControl(enable = true) {
     this.isGestureControlActive = Boolean(enable);
     this.hud.setGestureActive(this.isGestureControlActive);
 
     if (this.isGestureControlActive) {
       const video = document.getElementById('gesture-webcam');
       const canvas = document.getElementById('gesture-canvas');
-      this.hud.showToast('🖐️ WEBCAM GESTURE CONTROL: ACTIVATING...', 'info');
+      this.hud.showToast('🖐️ NEURAL HAND TRACKER: INITIALIZING...', 'info');
       const ok = await this.gestureController.start(video, canvas);
       if (ok) {
-        this.hud.showToast('✅ WEBCAM GESTURES ACTIVE: Steer, pinch, & walk!', 'success');
+        this.hud.showToast('✅ NEURAL TRACKER ACTIVE: Open Palm = Walk, Pinch = Interact, Fist = Stop, Mouse = Aim!', 'success');
       } else {
-        this.hud.showToast('⚠️ Could not start webcam tracking. Falling back to keyboard.', 'danger');
-        this.isGestureControlActive = false;
-        this.hud.setGestureActive(false);
+        this.hud.showToast('⚠️ Could not start webcam tracking. Please grant camera permissions.', 'danger');
       }
     } else {
       this.gestureController.stop();
-      this.hud.showToast('⌨️ GESTURE CONTROL OFF (Keyboard & Mouse)', 'info');
     }
   }
 
@@ -306,20 +309,16 @@ class Game {
     this.playerName = (config && config.name) || 'CYBER_GHOST';
     this.difficulty = (config && config.difficulty) || 'normal';
 
-    // Control Scheme Initialization (Webcam Gesture vs Keyboard)
-    if (config && config.controlScheme === 'gesture') {
-      this.toggleGestureControl(true);
-    } else if (this.isGestureControlActive && config && config.controlScheme === 'keyboard') {
-      this.toggleGestureControl(false);
-    }
+    // Start Webcam Gesture Tracking (Player is controlled solely using 3 hand gestures + mouse)
+    this.toggleGestureControl(true);
 
-    // Difficulty-adjusted parameters
+    // 15 minutes match duration (difficulty-adjusted)
     if (this.difficulty === 'easy') {
-      this.matchDuration = 2160; // 36 mins
+      this.matchDuration = 1080; // 18 mins
     } else if (this.difficulty === 'hard') {
-      this.matchDuration = 1440; // 24 mins
+      this.matchDuration = 720; // 12 mins
     } else {
-      this.matchDuration = 1800; // 30 mins
+      this.matchDuration = 900; // 15 mins
     }
 
     this.timeRemaining = this.matchDuration;

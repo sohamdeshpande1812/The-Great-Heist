@@ -17,9 +17,9 @@
 
 ## 📖 Overview
 
-In **The Great Heist**, you play as a solo cyber-operative infiltrating a high-security multi-floor corporate compound. Your objective: bypass security systems, evade volumetric surveillance cones, crack armored safes, unlock keycard-restricted zones, activate the underground vault's synchronized switches, and extract with the maximum amount of secured loot before the match timer expires.
+In **The Great Heist**, you play as a solo cyber-operative infiltrating a high-security multi-floor corporate compound. Your objective: bypass security systems, evade volumetric surveillance cones, crack armored safes, unlock keycard-restricted zones, activate the underground vault's synchronized switches, and extract with the maximum amount of secured loot before the **15-minute** match timer expires.
 
-The game is completely client-side, runs in modern web browsers at 60 FPS, and features dual control protocols: standard **Keyboard & Mouse** or futuristic **Neural Webcam Hand Gestures**.
+The game is completely client-side, runs in modern web browsers at 60 FPS, and features an immersive hands-free control protocol powered by **3 Neural Webcam Hand Gestures + Mouse Look**.
 
 ---
 
@@ -32,9 +32,12 @@ The game is completely client-side, runs in modern web browsers at 60 FPS, and f
   - **Rooftop Helipad (R):** High-altitude helipad extraction zone offering top bonuses.
   - **Central Elevator:** Fully interactive multi-level elevator linking all four facility tiers.
 
-- **🖐️ Dual Input Protocol (Keyboard + AI Hand Tracking):**
-  - Standard smooth keyboard and mouse controls.
-  - **Webcam Hand Gestures** powered by `@mediapipe/tasks-vision` (open palm to walk, pinch to loot/interact, closed fist to idle). Dual input remains active simultaneously so mouse/keyboard always act as a fail-safe.
+- **🖐️ 3 Hand Gestures + Mouse Look Control Protocol:**
+  - **Webcam Hand Gestures** powered by `@mediapipe/tasks-vision` (Open Palm to walk, Pinch to interact/loot, Closed Fist to stop).
+  - **Mouse Look** with pointer lock for seamless 360° aiming, camera turning, and directional steering.
+
+- **⏱️ 15-Minute Tactical Infiltration:**
+  - Tight 15-minute high-stakes countdown window to infiltrate, crack vaults, and extract.
 
 - **🚨 Intelligent Security AI & Surveillance Cones:**
   - Dynamic CCTV cameras with real-time volumetric light cones.
@@ -71,25 +74,29 @@ The game is completely client-side, runs in modern web browsers at 60 FPS, and f
 
 ## 🎮 Controls & Navigation
 
-### Keyboard & Mouse
+Operative movement and interactions are driven exclusively using **3 Neural Hand Gestures** alongside **Mouse Looking**:
+
+### 🖐️ Neural Hand Gestures (MediaPipe)
+| Hand Gesture | In-Game Action | Description |
+|---|---|---|
+| 🖐️ **Open Palm** | Walk Forward | Move operative forward toward current mouse aim direction |
+| 👌 **Pinch** (Thumb + Index) | Interact / Collect Loot / Flip Switch | Crack safes, open keycard doors, loot valuables, push buttons |
+| ✊ **Closed Fist** | Stop / Stand Still (Idle) | Halt operative movement immediately |
+
+### 🖱️ Mouse Look & Tactical Aim
 | Input | Action |
 |---|---|
-| <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> | Move Operative |
-| <kbd>SHIFT</kbd> | Sprint (Fast Run) |
-| <kbd>E</kbd> | Interact (Loot, Keycards, Safes, Elevator, Switches) |
-| <kbd>Q</kbd> | Quick Drop Last Carried Item |
-| <kbd>I</kbd> | Open Inventory Modal / Weight Management |
-| <kbd>G</kbd> | Toggle Webcam Hand Gesture Controller |
-| <kbd>H</kbd> | Toggle Mission Briefing & Controls Modal |
-| <kbd>MOUSE</kbd> | Look Around & Aim (Pointer Lock) |
-| <kbd>ESC</kbd> | Pause Menu / Release Mouse Lock |
+| <kbd>MOUSE</kbd> | Look Around, Aim & Steer Direction (Pointer Lock) |
+| <kbd>LEFT CLICK</kbd> | Re-engage Mouse Aim Pointer Lock |
 
-### Webcam Hand Gestures (MediaPipe)
-| Hand Gesture | In-Game Action |
+### ⌨️ Tactical HUD & Utility Shortcuts
+| Key | Action |
 |---|---|
-| 🖐️ **Open Palm** | Walk Forward |
-| 👌 **Pinch** (Thumb + Index) | Interact / Collect Loot / Flip Switch |
-| ✊ **Closed Fist** | Stop / Stand Still (Idle) |
+| <kbd>I</kbd> | Open Inventory Modal / Weight Management |
+| <kbd>Q</kbd> | Quick Drop Last Carried Item |
+| <kbd>G</kbd> | Toggle Webcam Picture-in-Picture (PIP) Window |
+| <kbd>H</kbd> | Toggle Mission Briefing & Controls Modal |
+| <kbd>ESC</kbd> | Pause Menu / Release Mouse Lock |
 
 ---
 
@@ -116,8 +123,8 @@ The game is completely client-side, runs in modern web browsers at 60 FPS, and f
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/the-great-heist.git
-   cd the-great-heist
+   git clone https://github.com/sohamdeshpande1812/The-Great-Heist.git
+   cd The-Great-Heist
    ```
 
 2. **Install dependencies:**

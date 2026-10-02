@@ -36,11 +36,8 @@ export class MainMenu {
     this.settingGestureEnable = document.getElementById('setting-gesture-enable');
     this.settingGesturePip = document.getElementById('setting-gesture-pip');
 
-    // Control Scheme Mode Elements (Keyboard vs Gesture)
-    this.controlScheme = 'keyboard';
-    this.btnCtrlKeyboard = document.getElementById('btn-ctrl-keyboard');
-    this.btnCtrlGesture = document.getElementById('btn-ctrl-gesture');
-    this.gesturePreviewTip = document.getElementById('gesture-preview-tip');
+    // Fixed Operative Control Protocol (3 Hand Gestures + Mouse)
+    this.controlScheme = 'gesture';
 
     // Pause Modal Buttons
     this.btnResume = document.getElementById('btn-resume');
@@ -48,32 +45,6 @@ export class MainMenu {
     this.btnAbort = document.getElementById('btn-abort');
 
     this.setupListeners();
-    this.setupControlSchemeListeners();
-  }
-
-  setupControlSchemeListeners() {
-    this.btnCtrlKeyboard?.addEventListener('click', () => {
-      this.setControlScheme('keyboard');
-    });
-
-    this.btnCtrlGesture?.addEventListener('click', () => {
-      this.setControlScheme('gesture');
-    });
-  }
-
-  setControlScheme(scheme) {
-    this.controlScheme = scheme;
-    if (scheme === 'gesture') {
-      this.btnCtrlGesture?.classList.add('active');
-      this.btnCtrlKeyboard?.classList.remove('active');
-      this.gesturePreviewTip?.classList.remove('hidden');
-      if (this.settingGestureEnable) this.settingGestureEnable.value = 'on';
-    } else {
-      this.btnCtrlKeyboard?.classList.add('active');
-      this.btnCtrlGesture?.classList.remove('active');
-      this.gesturePreviewTip?.classList.add('hidden');
-      if (this.settingGestureEnable) this.settingGestureEnable.value = 'off';
-    }
   }
 
   setupListeners() {
@@ -100,7 +71,7 @@ export class MainMenu {
           this.onStartGame({
             name,
             difficulty,
-            controlScheme: this.controlScheme
+            controlScheme: 'gesture'
           });
         }
       });
@@ -181,7 +152,6 @@ export class MainMenu {
     const music = this.musicVol ? Number(this.musicVol.value) / 100 : 0.65;
     const sens = this.sensSlider ? Number(this.sensSlider.value) : 5;
     const graphics = this.graphicsPreset ? this.graphicsPreset.value : 'high';
-    const gestureEnabled = this.settingGestureEnable ? this.settingGestureEnable.value === 'on' : false;
     const gesturePip = this.settingGesturePip ? this.settingGesturePip.value : 'show';
 
     audioManager.setMasterVolume(master);
@@ -189,7 +159,7 @@ export class MainMenu {
     audioManager.setMusicVolume(music);
 
     if (this.onSettingsChanged) {
-      this.onSettingsChanged({ sens, graphics, gestureEnabled, gesturePip });
+      this.onSettingsChanged({ sens, graphics, gesturePip });
     }
   }
 

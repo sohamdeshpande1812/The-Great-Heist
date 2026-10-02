@@ -34,12 +34,12 @@ export class InputManager {
 
   get keys() {
     return {
-      forward: this.keyboardKeys.forward || this.gestureKeys.forward,
-      backward: this.keyboardKeys.backward || this.gestureKeys.backward,
-      left: this.keyboardKeys.left || this.gestureKeys.left,
-      right: this.keyboardKeys.right || this.gestureKeys.right,
-      sprint: this.keyboardKeys.sprint || this.gestureKeys.sprint,
-      interact: this.keyboardKeys.interact || this.gestureKeys.interact,
+      forward: this.gestureKeys.forward,
+      backward: this.gestureKeys.backward,
+      left: this.gestureKeys.left,
+      right: this.gestureKeys.right,
+      sprint: this.gestureKeys.sprint,
+      interact: this.gestureKeys.interact,
       inventory: this.keyboardKeys.inventory
     };
   }
@@ -109,30 +109,22 @@ export class InputManager {
     switch (e.code) {
       case 'KeyW':
       case 'ArrowUp':
-        this.keyboardKeys.forward = true;
-        break;
       case 'KeyS':
       case 'ArrowDown':
-        this.keyboardKeys.backward = true;
-        break;
       case 'KeyA':
       case 'ArrowLeft':
-        this.keyboardKeys.left = true;
-        break;
       case 'KeyD':
       case 'ArrowRight':
-        this.keyboardKeys.right = true;
-        break;
       case 'ShiftLeft':
       case 'ShiftRight':
-        this.keyboardKeys.sprint = true;
+      case 'KeyE':
+        // Operative is controlled strictly with 3 Hand Gestures + Mouse
+        if (this.callbacks.onKeyboardMovementAttempt) {
+          this.callbacks.onKeyboardMovementAttempt();
+        }
         break;
       case 'Space':
         e.preventDefault();
-        break;
-      case 'KeyE':
-        this.keyboardKeys.interact = true;
-        if (this.callbacks.onInteract) this.callbacks.onInteract();
         break;
       case 'KeyQ':
         if (this.callbacks.onQuickDrop) this.callbacks.onQuickDrop();

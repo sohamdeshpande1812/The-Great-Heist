@@ -44,7 +44,7 @@
 
       <div class="hud-panel timer-panel">
         <div class="hud-label">TIME REMAINING</div>
-        <div class="hud-value neon-time" id="hud-timer">30:00</div>
+        <div class="hud-value neon-time" id="hud-timer">15:00</div>
       </div>
 
       <div class="hud-panel security-panel">
@@ -119,9 +119,8 @@
 
     <!-- Inventory / Drop List Overlay Toggle Button -->
     <div class="hud-bottom-controls">
-      <button class="hud-btn" id="btn-gesture-hud-toggle" title="Toggle Webcam Gesture Control [G]">🖐️ GESTURES [G]: OFF</button>
       <button class="hud-btn" id="btn-inventory-toggle" title="View & Drop Carried Loot [I]">🎒 INVENTORY [I]</button>
-      <button class="hud-btn" id="btn-controls-quick" title="View Controls [H]">⌨️ CONTROLS [H]</button>
+      <button class="hud-btn" id="btn-controls-quick" title="View Controls [H]">📋 CONTROLS [H]</button>
       <button class="hud-btn" id="btn-pause" title="Pause Game [ESC]">⏸️ PAUSE</button>
     </div>
 
@@ -239,23 +238,22 @@
           </div>
         </div>
 
-        <!-- Input Control Scheme Mode: Keyboard/Mouse vs Webcam Gestures -->
+        <!-- Operative Control Protocol (Fixed to 3 Hand Gestures + Mouse) -->
         <div class="control-scheme-container">
           <div class="field-label-row">
-            <label>INPUT CONTROL PROTOCOL</label>
-            <span class="field-hint">[CHOOSE CONTROL METHOD]</span>
+            <label>CONTROL PROTOCOL</label>
+            <span class="field-hint">[3 HAND GESTURES + MOUSE]</span>
           </div>
-          <div class="control-scheme-toggle">
-            <button type="button" class="control-scheme-btn active" id="btn-ctrl-keyboard">
-              <span>⌨️ KEYBOARD &amp; MOUSE</span>
-            </button>
-            <button type="button" class="control-scheme-btn" id="btn-ctrl-gesture">
-              <span>🖐️ WEBCAM GESTURES</span>
-            </button>
+          <div class="active-protocol-banner">
+            <div class="protocol-header-row">
+              <span class="protocol-icon">🖐️</span>
+              <span class="protocol-title">NEURAL HAND TRACKER + MOUSE LOOK</span>
+              <span class="protocol-tag">ACTIVE PROTOCOL</span>
+            </div>
           </div>
-          <div id="gesture-preview-tip" class="gesture-preview-tip hidden">
+          <div id="gesture-preview-tip" class="gesture-preview-tip">
             <div class="gesture-legend-title">⚡ NEURAL HAND GESTURE TELEMETRY</div>
-            <div class="gesture-legend-grid">
+            <div class="gesture-legend-grid four-cols">
               <div class="gesture-legend-item">
                 <span class="g-icon">🖐️</span>
                 <span class="g-name">Open Palm</span>
@@ -271,9 +269,14 @@
                 <span class="g-name">Closed Fist</span>
                 <span class="g-action">Stop / Idle</span>
               </div>
+              <div class="gesture-legend-item">
+                <span class="g-icon">🖱️</span>
+                <span class="g-name">Mouse Look</span>
+                <span class="g-action">Steer &amp; Aim</span>
+              </div>
             </div>
             <div class="cam-permission-status" id="cam-permission-status">
-              <span class="status-pulse-dot"></span> Camera feed initializes in HUD. Keyboard &amp; mouse remain active at all times!
+              <span class="status-pulse-dot"></span> Camera feed initializes in HUD. Operative is controlled using 3 gestures + mouse.
             </div>
           </div>
         </div>
@@ -286,7 +289,7 @@
 
           <!-- Native select kept in DOM for backward compatibility with JS -->
           <select id="difficulty-select" class="hidden-native-select" aria-label="Mission Difficulty">
-            <option value="normal" selected>NORMAL (30 Min, Standard Security)</option>
+            <option value="normal" selected>NORMAL (15 Min, Standard Security)</option>
           </select>
 
           <!-- Sleek Tactical Mission Parameter Banner -->
@@ -299,7 +302,7 @@
             <div class="param-stats-row">
               <div class="param-stat">
                 <span class="param-stat-label">TIME LIMIT</span>
-                <span class="param-stat-val neon-cyan">⏱️ 30 MINUTES</span>
+                <span class="param-stat-val neon-cyan">⏱️ 15 MINUTES</span>
               </div>
               <div class="param-stat-sep"></div>
               <div class="param-stat">
@@ -363,30 +366,17 @@
       </div>
       <div class="modal-body htp-body">
         <div class="htp-grid">
-          <div class="htp-card">
-            <h3>🎮 OPERATIVE CONTROLS</h3>
-            <ul class="controls-list">
-              <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <span>Move Operative</span></li>
-              <li><kbd>SHIFT</kbd> <span>Sprint / Fast Run</span></li>
-              <li><kbd>E</kbd> <span>Interact / Collect Loot / Open Doors / Flip Switches</span></li>
-              <li><kbd>G</kbd> <span>Toggle Webcam Hand Gesture Control</span></li>
-              <li><kbd>Q</kbd> <span>Quick Drop Carried Loot</span></li>
-              <li><kbd>I</kbd> <span>Open Inventory / View & Drop Items</span></li>
-              <li><kbd>MOUSE</kbd> <span>Look around & aim</span></li>
-              <li><kbd>ESC</kbd> <span>Pause / Release Mouse</span></li>
-            </ul>
-          </div>
-
-          <div class="htp-card htp-gesture-card">
-            <h3>🖐️ WEBCAM HAND GESTURE CONTROLS</h3>
-            <p class="gesture-card-desc">Control your agent seamlessly via real-time camera tracking:</p>
-            <ul class="controls-list gesture-controls-list">
+          <div class="htp-card htp-gesture-card full-width">
+            <h3>🖐️ OPERATIVE CONTROLS: 3 HAND GESTURES + MOUSE</h3>
+            <p class="gesture-card-desc">Your operative is controlled exclusively using neural webcam hand tracking and mouse orientation:</p>
+            <ul class="controls-list gesture-controls-list four-items">
               <li><span class="gesture-icon-pill">🖐️</span> <strong>OPEN PALM</strong> <span>Walk Forward</span></li>
-              <li><span class="gesture-icon-pill">👌</span> <strong>PINCH (THUMB + INDEX)</strong> <span>Interact / Collect Loot / Flip Switch</span></li>
+              <li><span class="gesture-icon-pill">👌</span> <strong>PINCH (THUMB + INDEX)</strong> <span>Interact / Collect Loot / Open Doors / Flip Switches</span></li>
               <li><span class="gesture-icon-pill">✊</span> <strong>CLOSED FIST</strong> <span>Stop / Stand Still (Idle)</span></li>
+              <li><span class="gesture-icon-pill">🖱️</span> <strong>MOUSE LOOK</strong> <span>Aim, Steer Direction &amp; Look Around</span></li>
             </ul>
             <div class="gesture-note-box">
-              <span>⚡ <strong>Dual-Control Active:</strong> Keyboard and mouse work concurrently at all times as a seamless fail-safe!</span>
+              <span>⚡ <strong>Utility Keys:</strong> <kbd>I</kbd> Open Inventory • <kbd>Q</kbd> Drop Loot • <kbd>H</kbd> Mission Briefing • <kbd>ESC</kbd> Pause</span>
             </div>
           </div>
 
@@ -540,13 +530,6 @@
             <option value="high" selected>HIGH (Post-processing, Shadows & Particles)</option>
             <option value="medium">MEDIUM (Standard Lighting & Shadows)</option>
             <option value="low">LOW (Maximum Performance / Potato Mode)</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="setting-gesture-enable">WEBCAM HAND GESTURES</label>
-          <select id="setting-gesture-enable">
-            <option value="off" selected>OFF (Keyboard & Mouse Only)</option>
-            <option value="on">ON (Webcam Hand Tracking Active)</option>
           </select>
         </div>
         <div class="setting-row">

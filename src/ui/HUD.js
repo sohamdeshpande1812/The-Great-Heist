@@ -82,16 +82,7 @@ export class HUD {
 
     this.btnCloseCamPip?.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (this.onToggleGestureCallback) {
-        this.onToggleGestureCallback(false);
-      }
-    });
-
-    this.btnGestureHudToggle?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (this.onToggleGestureCallback) {
-        this.onToggleGestureCallback(!this.isGestureActive);
-      }
+      this.webcamPip?.classList.add('hidden');
     });
     this.btnCloseInv.addEventListener('click', (e) => {
       e.stopPropagation();
