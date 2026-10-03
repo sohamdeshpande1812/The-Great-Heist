@@ -29,53 +29,68 @@ export class ResultsModal {
     });
   }
 
-  show(results, onReplay, onMenu) {
+  async show(results, onReplay, onMenu) {
     const {
       isVictory,
       playerName,
       extractedMoney,
+      lootValue = extractedMoney || 0,
       timeElapsed,
-      lootCount,
-      isVaultCracked,
+      timeRemaining = 0,
+      lootCount = 0,
+      isVaultCracked = false,
       finalScore,
-      extractionName
+      score = finalScore || 0,
+      extractionName,
+      extractionRoute = extractionName || 'Standard Extraction',
+      completedTime = new Date().toISOString()
     } = results;
 
-    const lbResult = this.leaderboardView.addScore(playerName, extractedMoney, finalScore, {
-      timeElapsed,
-      lootCount,
-      isVaultCracked,
-      extractionName
-    });
-    const rank = lbResult.rank;
-    const entries = lbResult.entries;
-    this.playerNameEl.textContent = playerName.toUpperCase();
-
-    this.moneyEl.textContent = MathUtils.formatCurrency(extractedMoney);
+    this.playerNameEl.textContent = (playerName || 'AGENT').toUpperCase();
+    this.moneyEl.textContent = MathUtils.formatCurrency(lootValue);
     this.timeEl.textContent = MathUtils.formatTime(timeElapsed);
     this.lootCountEl.textContent = `${lootCount} Items`;
     this.vaultStatusEl.textContent = isVaultCracked ? 'CRACKED (🔓 COMPLETED)' : 'LOCKED';
-    this.scoreEl.textContent = `${finalScore.toLocaleString()} PTS`;
+    this.scoreEl.textContent = `${Number(score).toLocaleString()} PTS`;
 
     if (isVictory) {
       this.titleEl.textContent = '🎉 HEIST SUCCESSFUL!';
       this.titleEl.className = 'neon-green';
-      this.badgeEl.textContent = `SUCCESSFUL EXTRACTION // ${extractionName.toUpperCase()}`;
+      this.badgeEl.textContent = `SUCCESSFUL EXTRACTION // ${extractionRoute.toUpperCase()}`;
     } else {
       this.titleEl.textContent = '🚨 TIME EXPIRED / CAUGHT!';
       this.titleEl.className = 'neon-red';
       this.badgeEl.textContent = 'MISSION TERMINATED // ONLY SECURED LOOT COUNTED';
     }
 
+    // Temporary saving status
+    this.msgEl.textContent = '💾 TRANSMITTING SCORE TO MONGODB LEADERBOARD...';
+    this.modal.classList.remove('hidden');
+
+    // Post score to /api/leaderboard via leaderboardView
+    const lbResult = await this.leaderboardView.submitScore({
+      playerName,
+      score,
+      lootValue,
+      timeRemaining,
+      extractionRoute,
+      completedTime
+    });
+
+    const rank = lbResult.rank;
+    const entries = lbResult.entries || [];
+
     // Motivational rank delta message
     let motivationalText = `🔥 YOU ARE RANK #${rank}!`;
     if (rank > 1 && entries[rank - 2]) {
       const nextRankEntry = entries[rank - 2];
-      const moneyDiff = nextRankEntry.money - extractedMoney;
+      const nextMoney = nextRankEntry.lootValue !== undefined ? nextRankEntry.lootValue : (nextRankEntry.money || 0);
+      const moneyDiff = nextMoney - lootValue;
       if (moneyDiff > 0) {
         motivationalText += ` ⚡ ${MathUtils.formatCurrency(moneyDiff)} MORE EXTRACTED TO REACH RANK #${rank - 1}!`;
       } else {
-        motivationalText += ` ⚡ JUST ${nextRankEntry.score - finalScore} MORE POINTS TO REACH RANK #${rank - 1}!`;
+        const nextScore = Number(nextRankEntry.score) || 0;
+        motivationalText += ` ⚡ JUST ${nextScore - score} MORE POINTS TO REACH RANK #${rank - 1}!`;
       }
     } else if (rank === 1) {
       motivationalText = '👑 ALL HAIL THE MASTER HEIST SPECIALIST! YOU ARE #1 ON THE LEADERBOARD!';
@@ -92,8 +107,6 @@ export class ResultsModal {
       this.hide();
       if (onMenu) onMenu();
     };
-
-    this.modal.classList.remove('hidden');
   }
 
   hide() {

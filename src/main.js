@@ -417,16 +417,25 @@ class Game {
     const finalScore = Math.round(finalSecured / 10) + timeBonus + vaultBonus + extractionBonus;
 
     this.hud.hide();
+    const extractionRoute = this.activeExtractZone ? this.activeExtractZone.name : 'Main Exit';
+    const timeRemainingSec = Math.max(0, Math.round(this.timeRemaining));
+    const completedTime = new Date().toISOString();
+
     this.resultsModal.show(
       {
         isVictory: true,
         playerName: this.playerName,
+        score: finalScore,
+        lootValue: finalSecured,
+        timeRemaining: timeRemainingSec,
+        extractionRoute,
+        completedTime,
         extractedMoney: finalSecured,
         timeElapsed: this.timeElapsed,
         lootCount: this.player.totalItemsCollectedCount,
         isVaultCracked: this.vaultPuzzle.isVaultUnlocked,
         finalScore,
-        extractionName: this.activeExtractZone ? this.activeExtractZone.name : 'Main Exit'
+        extractionName: extractionRoute
       },
       () => this.startGame({ name: this.playerName, difficulty: this.difficulty }),
       () => {
@@ -459,12 +468,18 @@ class Game {
     const finalSecured = this.player.securedValue;
     const vaultBonus = this.vaultPuzzle.isVaultUnlocked ? 1500 : 0;
     const finalScore = Math.round(finalSecured / 10) + vaultBonus;
+    const completedTime = new Date().toISOString();
 
     this.hud.hide();
     this.resultsModal.show(
       {
         isVictory: false,
         playerName: this.playerName,
+        score: finalScore,
+        lootValue: finalSecured,
+        timeRemaining: 0,
+        extractionRoute: 'Time Expired',
+        completedTime,
         extractedMoney: finalSecured,
         timeElapsed: this.matchDuration,
         lootCount: this.player.totalItemsCollectedCount,
