@@ -1893,6 +1893,21 @@ html, body {
   margin-top: 8px;
 }
 
+/* Native select kept in DOM for backward compatibility with JS */
+.hidden-native-select {
+  display: none !important;
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  clip: rect(0, 0, 0, 0) !important;
+  overflow: hidden !important;
+}
+
 /* Sleek Tactical Mission Parameter Banner */
 .mission-parameter-banner {
   background: rgba(6, 11, 24, 0.9);
