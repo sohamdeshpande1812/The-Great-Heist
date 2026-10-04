@@ -26,6 +26,7 @@ export class Renderer {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.1; // Richer darks, less washed-out whites
+    this.renderer.localClippingEnabled = true;
 
     this.isAlarmActive = false;
     this.setupLighting();

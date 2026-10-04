@@ -1295,18 +1295,18 @@ export class FacilityMap {
     // Strategic Security Cameras ONLY in restricted zones (Lobby spawn is 100% safe!)
     const camConfigs = [
       // Ground Floor: Deep restricted zones only
-      { position: new THREE.Vector3(-15.0, 4.8, 20), baseAngle: -Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 0 },   // Inside Security HQ
-      { position: new THREE.Vector3(15.0, 4.8, 6), baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.8, sweepPhase: 1.5 },     // Inside Garage Approach
+      { position: new THREE.Vector3(-15.0, 4.8, 20), floorY: 0, baseAngle: -Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 0 },   // Inside Security HQ
+      { position: new THREE.Vector3(15.0, 4.8, 6), floorY: 0, baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.8, sweepPhase: 1.5 },     // Inside Garage Approach
 
       // Second Floor: Corridors
-      { position: new THREE.Vector3(0, 12.8, 12), baseAngle: Math.PI, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.7, sweepPhase: 0.8 },        // 2F North corridor sweep
-      { position: new THREE.Vector3(0, 12.8, -12), baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.72, sweepPhase: 2.2 },            // 2F South corridor sweep
+      { position: new THREE.Vector3(0, 12.8, 12), floorY: 8, baseAngle: Math.PI, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.7, sweepPhase: 0.8 },        // 2F North corridor sweep
+      { position: new THREE.Vector3(0, 12.8, -12), floorY: 8, baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.72, sweepPhase: 2.2 },            // 2F South corridor sweep
 
       // Underground: Substation & Vault Approach
-      { position: new THREE.Vector3(0, -3.0, 12), baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.0 },              // UG North Corridor sweep
-      { position: new THREE.Vector3(-3.8, -3.0, -14), baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.8 }, // Directly In Front of Vault Door
-      { position: new THREE.Vector3(15.0, -3.0, 20), baseAngle: Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 2.8 },    // Switch A Reactor room
-      { position: new THREE.Vector3(-15.0, -3.0, 20), baseAngle: -Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 0.3 }    // Switch B Substation room
+      { position: new THREE.Vector3(0, -3.0, 12), floorY: -8, baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.0 },              // UG North Corridor sweep
+      { position: new THREE.Vector3(-3.8, -3.0, -14), floorY: -8, baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.8 }, // Directly In Front of Vault Door
+      { position: new THREE.Vector3(15.0, -3.0, 20), floorY: -8, baseAngle: Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 2.8 },    // Switch A Reactor room
+      { position: new THREE.Vector3(-15.0, -3.0, 20), floorY: -8, baseAngle: -Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 0.3 }    // Switch B Substation room
     ];
 
     camConfigs.forEach(cfg => {

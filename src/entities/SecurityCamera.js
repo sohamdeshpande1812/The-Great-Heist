@@ -3,6 +3,7 @@ import * as THREE from 'three';
 export class SecurityCamera {
   constructor(options = {}) {
     this.position = options.position || new THREE.Vector3(0, 4.5, 0);
+    this.floorY = options.floorY !== undefined ? options.floorY : (this.position.y > 6.0 ? 8.0 : (this.position.y > -2.0 ? 0.0 : -8.0));
     this.baseAngle = options.baseAngle !== undefined ? options.baseAngle : 0;
     this.tiltAngle = options.tiltAngle || 0.65; // Tilt downward
     this.detectionRange = options.range || 12;
@@ -79,12 +80,16 @@ export class SecurityCamera {
     coneGeo.translate(0, -this.detectionRange / 2, 0);
     coneGeo.rotateX(-Math.PI / 2);
 
+    // Floor clipping plane: Prevents cone from penetrating through the floor slab into lower levels
+    this.floorClipPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(this.floorY + 0.05));
+
     this.coneMat = new THREE.MeshBasicMaterial({
       color: 0x00ff88,
       transparent: true,
       opacity: 0.24,
       side: THREE.DoubleSide,
-      depthWrite: false
+      depthWrite: false,
+      clippingPlanes: [this.floorClipPlane]
     });
 
     this.coneMesh = new THREE.Mesh(coneGeo, this.coneMat);
@@ -117,7 +122,31 @@ export class SecurityCamera {
     this.forwardDir.y = -this.sinTilt;
     this.forwardDir.z = Math.cos(currentAngle) * this.cosTilt;
 
-    // 2. Fast Detection Distance & Conical Math
+    // Floor Isolation Check: Cameras cannot see or render across floors (~6m height per floor)
+    const isOnSameFloor = Math.abs(playerPos.y - this.floorY) <= 4.5;
+
+    // Visibility: Only render camera / cone if player is on the same floor level
+    if (this.mesh) {
+      this.mesh.visible = isOnSameFloor;
+    }
+
+    if (!isOnSameFloor) {
+      // Player is on another floor: smoothly decay detection and do not detect through floors
+      this.detectionLevel = Math.max(0, this.detectionLevel - this.decayRate * delta);
+      if (this.detectionLevel === 0 && this.state !== 'safe') {
+        this.state = 'safe';
+        this.coneMat.color.setHex(0x00ff88);
+        this.lensMat.color.setHex(0x00ff88);
+        if (this.statusLedMat) this.statusLedMat.color.setHex(0x00ff88);
+        this.coneMat.opacity = 0.22;
+      }
+      return {
+        level: this.detectionLevel,
+        state: this.state
+      };
+    }
+
+    // 2. Fast Detection Distance & Conical Math (Player is on the same floor)
     const dx = playerPos.x - this.position.x;
     const dy = playerPos.y - this.position.y;
     const dz = playerPos.z - this.position.z;
