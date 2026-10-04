@@ -961,17 +961,142 @@ html, body {
   .terminal-frame-hud { display: none; }
 }
 
+.menu-spotlight-gold {
+  position: absolute;
+  top: 40%;
+  right: 15%;
+  transform: translate(0, -50%);
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.06) 0%, rgba(245, 158, 11, 0.02) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .menu-content {
   position: relative;
   z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 580px;
+  max-width: 600px;
   width: 92%;
   text-align: center;
   margin: auto;
-  padding: 24px 0 60px 0;
+  padding: 24px 0 40px 0;
+}
+
+/* Two-column layout for widescreen / desktop */
+.menu-layout {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  column-gap: 36px;
+  row-gap: 16px;
+  max-width: 1060px;
+  width: 95%;
+  align-items: center;
+  margin: auto;
+  padding: 20px 0 24px 0;
+  text-align: left;
+}
+
+.menu-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 10px;
+}
+
+.menu-brand .terminal-status-badge {
+  margin-bottom: 4px;
+}
+
+.menu-brand .game-logo {
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.menu-brand .logo-sub {
+  justify-content: flex-start;
+}
+
+.menu-brand .logo-main {
+  text-align: left;
+}
+
+.menu-brand .logo-tagline {
+  justify-content: flex-start;
+}
+
+.logo-accent {
+  color: var(--neon-gold);
+  background: linear-gradient(180deg, #fff3b0 0%, #ffd700 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.65));
+}
+
+.menu-pitch {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #94a3b8;
+  max-width: 440px;
+  margin: 0;
+}
+
+/* Mission quick stats chip bar */
+.menu-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+}
+
+.menu-stats li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 7px 10px;
+  background: rgba(10, 16, 32, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.menu-stats li:hover {
+  border-color: var(--neon-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 240, 255, 0.2);
+}
+
+.menu-stats li strong {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.menu-stats li strong.neon-gold {
+  color: var(--neon-gold);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.menu-stats li span {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #64748b;
+  margin-top: 2px;
 }
 
 /* Top Link Status Pill */
@@ -1034,9 +1159,9 @@ html, body {
 
 .logo-main {
   font-family: var(--font-display);
-  font-size: clamp(32px, 5vw, 44px);
+  font-size: clamp(32px, 4.4vw, 44px);
   font-weight: 900;
-  letter-spacing: 6px;
+  letter-spacing: 5px;
   margin-bottom: 4px;
   line-height: 1.1;
   background: linear-gradient(180deg, #ffffff 10%, #e0f2fe 45%, #38bdf8 80%, #00f0ff 100%);
@@ -1066,19 +1191,18 @@ html, body {
 /* Tactical Operative Dossier Card */
 .player-input-card {
   width: 100%;
-  background: linear-gradient(170deg, rgba(12, 19, 36, 0.9) 0%, rgba(5, 9, 20, 0.96) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  padding: 18px 22px;
+  background: linear-gradient(170deg, rgba(12, 19, 36, 0.92) 0%, rgba(5, 9, 20, 0.96) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  padding: 16px 20px;
   border-radius: 12px;
   backdrop-filter: blur(20px);
   box-shadow: 
     0 25px 60px rgba(0, 0, 0, 0.85),
     0 0 30px rgba(0, 240, 255, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   text-align: left;
   position: relative;
 }
@@ -1114,7 +1238,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(56, 189, 248, 0.15);
 }
 
@@ -1143,7 +1267,7 @@ html, body {
 .card-field-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .field-label-row {
@@ -1188,12 +1312,12 @@ html, body {
 
 .input-prefix {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--neon-cyan);
   background: rgba(14, 165, 233, 0.12);
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-right: 1px solid rgba(56, 189, 248, 0.2);
   user-select: none;
 }
@@ -1204,10 +1328,10 @@ html, body {
   border: none;
   color: #ffffff;
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 2px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   outline: none;
 }
 
@@ -1229,56 +1353,14 @@ html, body {
 .mission-parameter-banner {
   background: rgba(6, 11, 24, 0.85);
   border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-}
-
-.param-badge-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.12);
-}
-
-.param-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 6px #38bdf8;
-}
-
-.param-title {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: #f1f5f9;
-  flex: 1;
-  text-align: left;
-}
-
-.param-tag {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 1px;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
-  padding: 2px 6px;
-  border-radius: 3px;
-  border: 1px solid rgba(56, 189, 248, 0.22);
-}
-
-.param-stats-row {
+  border-radius: 6px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .param-stat {
@@ -1291,7 +1373,7 @@ html, body {
 
 .param-stat-label {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   letter-spacing: 1px;
   color: #64748b;
@@ -1299,15 +1381,19 @@ html, body {
 
 .param-stat-val {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #f1f5f9;
 }
 
-.param-stat-sep {
-  width: 1px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.08);
+/* Menu Actions span both columns */
+.menu-actions {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 /* Menu Buttons Layout */
@@ -1315,16 +1401,15 @@ html, body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
 }
 
 /* Primary High-Impact CTA Button */
 .btn-start-heist {
   width: 100%;
-  height: 56px;
+  height: 54px;
   background: linear-gradient(135deg, #00f0ff 0%, #0284c7 50%, #0369a1 100%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   cursor: pointer;
   position: relative;
@@ -1373,7 +1458,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   font-family: var(--font-display);
   font-size: 16px;
   font-weight: 900;
@@ -1396,24 +1481,24 @@ html, body {
   transform: translateX(4px);
 }
 
-/* Secondary Buttons Row */
+/* Secondary Buttons Row: 4 sleek tactical tiles */
 .secondary-btn-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   width: 100%;
 }
 
 .btn-nav {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(12, 19, 36, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.22);
   border-radius: 8px;
-  padding: 12px 10px;
+  padding: 10px 8px;
   color: #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(12px);
@@ -1422,10 +1507,10 @@ html, body {
 
 .btn-nav:hover {
   transform: translateY(-2px);
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(22, 34, 60, 0.95);
   border-color: var(--neon-cyan);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
 }
 
 .btn-nav:active {
@@ -1433,14 +1518,81 @@ html, body {
 }
 
 .btn-nav .btn-icon {
-  font-size: 14px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.btn-nav .btn-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 1px;
 }
 
 .btn-nav .btn-text {
   font-family: var(--font-display);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 1.5px;
+  color: #f8fafc;
+  line-height: 1.1;
+}
+
+.btn-nav .btn-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+.btn-nav:hover .btn-sub {
+  color: var(--neon-cyan);
+}
+
+/* Responsive collapse for screens narrower than 920px */
+@media (max-width: 920px) {
+  .menu-layout {
+    grid-template-columns: 1fr;
+    max-width: 540px;
+    padding: 16px 0 30px 0;
+    row-gap: 16px;
+    text-align: center;
+  }
+
+  .menu-brand {
+    align-items: center;
+    text-align: center;
+  }
+
+  .menu-brand .game-logo,
+  .menu-brand .logo-main {
+    text-align: center;
+  }
+
+  .menu-brand .logo-sub,
+  .menu-brand .logo-tagline {
+    justify-content: center;
+  }
+
+  .menu-pitch {
+    text-align: center;
+  }
+
+  .secondary-btn-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .secondary-btn-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .menu-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 /* Footer Telemetry */
