@@ -258,6 +258,124 @@ html, body {
   100% { opacity: 1; }
 }
 
+/* Session Autosync HUD Panel */
+.session-panel {
+  min-width: 150px;
+}
+
+.session-hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(4, 8, 18, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.session-hud-badge:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(14, 25, 50, 0.9);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.session-sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  box-shadow: 0 0 6px var(--neon-green);
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.session-sync-dot.saving {
+  background: var(--neon-gold);
+  box-shadow: 0 0 8px var(--neon-gold);
+  animation: pulse-beacon 0.8s infinite;
+}
+
+.session-sync-dot.synced {
+  background: var(--neon-green);
+  box-shadow: 0 0 6px var(--neon-green);
+}
+
+.session-sync-dot.offline {
+  background: var(--neon-cyan);
+  box-shadow: 0 0 6px var(--neon-cyan);
+}
+
+.session-sync-dot.error {
+  background: var(--neon-red);
+  box-shadow: 0 0 6px var(--neon-red);
+}
+
+.session-id-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.session-sync-text {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+/* Pause Session Pill */
+.pause-session-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(6, 11, 24, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 16px;
+  margin-top: 14px;
+}
+
+.pause-pill-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+}
+
+.pause-pill-id {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 8px var(--neon-cyan-glow);
+}
+
+.btn-copy-mini {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-mini:hover {
+  background: var(--neon-cyan);
+  color: #050811;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
 /* Floor Badge Indicator */
 .floor-badge-container {
   position: absolute;

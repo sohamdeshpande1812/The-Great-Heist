@@ -57,8 +57,18 @@ class Game {
 
     // Mechanics Subsystems
     this.securitySystem = new SecuritySystem(this.renderer, (msg, type) => this.hud.showToast(msg, type));
-    this.keycardSystem = new KeycardSystem(this.player, this.facilityMap, (msg, type) => this.hud.showToast(msg, type));
-    this.vaultPuzzle = new VaultPuzzle(this.facilityMap, this.securitySystem, (msg, type) => this.hud.showToast(msg, type));
+    this.keycardSystem = new KeycardSystem(
+      this.player,
+      this.facilityMap,
+      (msg, type) => this.hud.showToast(msg, type),
+      () => this.saveSession({ silent: true, isAuto: true })
+    );
+    this.vaultPuzzle = new VaultPuzzle(
+      this.facilityMap,
+      this.securitySystem,
+      (msg, type) => this.hud.showToast(msg, type),
+      () => this.saveSession({ silent: true, isAuto: true })
+    );
     this.extractionSystem = new ExtractionSystem(this.player, this.facilityMap, (zone) => this.onExtractionZoneTriggered(zone));
 
     // Game Session Stats
@@ -68,8 +78,10 @@ class Game {
     this.timeRemaining = 900;
     this.timeElapsed = 0;
 
-    // Timer tracking
+    // Timer & Autosave tracking
     this.lastTime = performance.now();
+    this.lastAutosaveTime = performance.now();
+    this.lastLocalSnapshotTime = performance.now();
 
     // Extraction Modal Elements
     this.extractModal = document.getElementById('modal-extract-confirm');
@@ -302,6 +314,8 @@ class Game {
     this.player.useElevator(new THREE.Vector3(0, targetY, 0));
     audioManager.playDoorOpen();
     this.hud.showToast(`🛗 ELEVATOR ARRIVED: ${floorName.toUpperCase()}`, 'success');
+    // Milestone autosave on elevator transition
+    this.saveSession({ silent: true, isAuto: true }).catch(() => {});
   }
 
   setupExtractionModalListeners() {
@@ -391,6 +405,7 @@ class Game {
 
     this.state = 'PLAYING';
     this.hud.show();
+    this.hud.setSessionId(this.sessionId);
     this.hud.toggleInventory(false);
     this.input.requestPointerLock();
     try {
@@ -399,6 +414,13 @@ class Game {
       console.warn('Could not start music automatically:', e);
     }
     this.hud.showToast('🏢 FACILITY INFILTRATED: Collect loot & find keycards!', 'info');
+
+    // Initial silent autosave to register session in cloud
+    setTimeout(() => {
+      if (this.state === 'PLAYING') {
+        this.saveSession({ silent: true, isAuto: true }).catch(() => {});
+      }
+    }, 1500);
   }
 
   pauseGame() {
@@ -429,7 +451,8 @@ class Game {
       () => {
         // Load
         this.sessionModal.show({ mode: 'load', game: this });
-      }
+      },
+      this.sessionId
     );
   }
 
@@ -443,14 +466,14 @@ class Game {
   }
 
   /**
-   * Saves the current active game session to MongoDB Atlas via POST /api/gameSessions.
+   * Constructs a serializable snapshot of the current active heist session.
    */
-  async saveSession() {
+  getSessionPayload() {
     if (!this.sessionId) {
       this.sessionId = this.generateSessionId();
     }
 
-    const payload = {
+    return {
       sessionId: this.sessionId,
       playerName: this.playerName || 'CYBER_GHOST',
       position: {
@@ -484,6 +507,49 @@ class Game {
       timeElapsed: Math.round(this.timeElapsed),
       vaultCracked: this.vaultPuzzle.isVaultUnlocked
     };
+  }
+
+  /**
+   * Saves instant backup snapshot into browser localStorage (zero-latency offline safety).
+   */
+  saveLocalSnapshot() {
+    try {
+      const payload = this.getSessionPayload();
+      localStorage.setItem('the_great_heist_active_snapshot', JSON.stringify(payload));
+      localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
+      localStorage.setItem('the_great_heist_last_session_meta', JSON.stringify({
+        floor: payload.floor,
+        secured: payload.loot.securedValue,
+        carried: payload.loot.carriedValue,
+        time: new Date().toLocaleTimeString()
+      }));
+      return true;
+    } catch (e) {
+      console.warn('Failed to save local snapshot:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Saves the current active game session to MongoDB Atlas via POST /api/gameSessions.
+   * Also guarantees a local snapshot is saved first so sudden network cuts lose zero data.
+   *
+   * @param {Object} options - { silent: boolean, isAuto: boolean }
+   */
+  async saveSession(options = {}) {
+    const isAuto = Boolean(options.isAuto);
+    const silent = Boolean(options.silent);
+
+    // 1. Instant local persistence first
+    this.saveLocalSnapshot();
+
+    const payload = this.getSessionPayload();
+
+    // 2. Telemetry indicator on HUD
+    this.hud.setSessionSyncStatus('saving', isAuto ? 'AUTOSAVING...' : 'SAVING...');
+    if (isAuto) {
+      this.hud.flashAutosaveIndicator();
+    }
 
     try {
       const response = await fetch('/api/gameSessions', {
@@ -501,19 +567,16 @@ class Game {
       }
 
       const data = await response.json();
-      localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
-      localStorage.setItem('the_great_heist_last_session_meta', JSON.stringify({
-        floor: payload.floor,
-        secured: payload.loot.securedValue,
-        carried: payload.loot.carriedValue,
-        time: new Date().toLocaleTimeString()
-      }));
 
-      try {
-        audioManager.playKeycardChime();
-      } catch (e) {}
+      // Cloud synced successfully
+      this.hud.setSessionSyncStatus('synced', 'SYNCED');
 
-      this.hud.showToast(`💾 MISSION SAVED! Session ID: ${this.sessionId}`, 'success');
+      if (!silent) {
+        try {
+          audioManager.playKeycardChime();
+        } catch (e) {}
+        this.hud.showToast(`💾 MISSION SAVED! Session ID: ${this.sessionId}`, 'success');
+      }
 
       return {
         success: true,
@@ -521,15 +584,25 @@ class Game {
         data
       };
     } catch (err) {
-      console.error('Failed to save session:', err);
-      this.hud.showToast(`⚠️ SAVE FAILED: ${err.message}`, 'danger');
-      throw err;
+      console.warn('Cloud save sync issue:', err.message);
+
+      // Graceful offline fallback: local storage has preserved state
+      this.hud.setSessionSyncStatus('offline', 'OFFLINE (LOCAL SAVED)');
+
+      if (!silent) {
+        this.hud.showToast(`⚠️ CLOUD UNREACHABLE: Saved locally on your device!`, 'warning');
+      }
+
+      if (!isAuto) {
+        throw err;
+      }
+      return { success: false, offline: true, error: err.message };
     }
   }
 
   /**
    * Retrieves and resumes an active game session from MongoDB Atlas via GET /api/gameSessions?sessionId=...
-   * Restores operative position, inventory, floor, keycards, alarm status, and mission stats.
+   * If network is down, seamlessly falls back to the locally cached active snapshot.
    *
    * @param {string} sessionId
    */
@@ -539,29 +612,52 @@ class Game {
       throw new Error('Please enter a valid session ID.');
     }
 
-    this.hud.showToast('🔍 RETRIEVING SESSION FROM CLOUD...', 'info');
+    this.hud.showToast('🔍 RETRIEVING SESSION...', 'info');
 
-    const response = await fetch(`/api/gameSessions?sessionId=${encodeURIComponent(cleanId)}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
+    let session = null;
+    let isLocalFallback = false;
+
+    try {
+      const response = await fetch(`/api/gameSessions?sessionId=${encodeURIComponent(cleanId)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        session = data.session || data;
+      } else {
+        console.warn(`Server responded HTTP ${response.status} for session ${cleanId}`);
       }
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || errData.error || `Session not found (HTTP ${response.status})`);
+    } catch (netErr) {
+      console.warn('Network fetch error during loadSession:', netErr);
     }
 
-    const data = await response.json();
-    const session = data.session || data;
+    // Offline / Local snapshot fallback
+    if (!session || !session.sessionId) {
+      try {
+        const localRaw = localStorage.getItem('the_great_heist_active_snapshot');
+        if (localRaw) {
+          const localParsed = JSON.parse(localRaw);
+          if (localParsed && (localParsed.sessionId === cleanId || cleanId.toUpperCase() === 'LOCAL')) {
+            session = localParsed;
+            isLocalFallback = true;
+          }
+        }
+      } catch (e) {
+        console.warn('Local snapshot check failed:', e);
+      }
+    }
 
     if (!session || !session.sessionId) {
-      throw new Error('Received malformed session document from server.');
+      throw new Error(`Session "${cleanId}" not found in cloud or local cache.`);
     }
 
     // 1. Session & Player Config
     this.sessionId = session.sessionId;
+    this.hud.setSessionId(this.sessionId);
     localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
     localStorage.setItem('the_great_heist_last_session_meta', JSON.stringify({
       floor: session.floor || 'Facility',
@@ -705,6 +801,8 @@ class Game {
     this.extractModal.classList.add('hidden');
     this.state = 'PLAYING';
     this.input.requestPointerLock();
+    // Milestone autosave on secured loot
+    this.saveSession({ silent: true, isAuto: true }).catch(() => {});
   }
 
   finishHeistWithExtraction() {
@@ -1085,6 +1183,19 @@ class Game {
           }
         }
       );
+
+      // 9. Periodic Auto-Save & Local Snapshot mirroring
+      // Local snapshot: every 5 seconds (fast, zero network cost)
+      if (now - this.lastLocalSnapshotTime > 5000) {
+        this.lastLocalSnapshotTime = now;
+        this.saveLocalSnapshot();
+      }
+
+      // Cloud auto-save: every 35 seconds (non-blocking background sync)
+      if (now - this.lastAutosaveTime > 35000) {
+        this.lastAutosaveTime = now;
+        this.saveSession({ silent: true, isAuto: true }).catch(() => {});
+      }
     } else if (this.state === 'MENU') {
       // Cinematic 3D Camera Orbit & Mouse Parallax behind Main Menu
       this.mouseParallax.x += (this.mouseParallax.targetX - this.mouseParallax.x) * 0.05;

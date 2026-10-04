@@ -1,10 +1,11 @@
 import { audioManager } from '../engine/AudioManager.js';
 
 export class KeycardSystem {
-  constructor(player, facilityMap, showToast) {
+  constructor(player, facilityMap, showToast, onKeycardAcquired = null) {
     this.player = player;
     this.facilityMap = facilityMap;
     this.showToast = showToast;
+    this.onKeycardAcquired = onKeycardAcquired;
   }
 
   update() {
@@ -20,6 +21,10 @@ export class KeycardSystem {
 
         const name = keycard.type.toUpperCase();
         this.showToast(`🔑 ${name} KEYCARD ACQUIRED! Restricted areas unlocked.`, 'success');
+
+        if (this.onKeycardAcquired) {
+          this.onKeycardAcquired(keycard.type);
+        }
       }
     }
 

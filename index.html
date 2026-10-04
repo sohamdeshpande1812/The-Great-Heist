@@ -54,6 +54,15 @@
           <span class="status-text">🟢 SAFE</span>
         </div>
       </div>
+
+      <div class="hud-panel session-panel">
+        <div class="hud-label">SESSION // AUTOSAVE</div>
+        <div class="session-hud-badge" id="hud-session-badge" title="Active Session ID (Click to copy)">
+          <span class="session-sync-dot" id="hud-session-dot"></span>
+          <span class="session-id-val" id="hud-session-id">HEIST-ACTIVE</span>
+          <span class="session-sync-text" id="hud-session-sync-status">SYNCED</span>
+        </div>
+      </div>
     </header>
 
     <!-- Floor Level Indicator -->
@@ -716,6 +725,11 @@
       </div>
       <div class="modal-body text-center">
         <p>The facility is frozen in place. Ready to resume operation?</p>
+        <div class="pause-session-pill">
+          <span class="pause-pill-label">ACTIVE HEIST SESSION:</span>
+          <span class="pause-pill-id" id="pause-session-id-text">HEIST-ACTIVE</span>
+          <button type="button" class="btn-copy-mini" id="btn-pause-copy-id" title="Copy Session ID">📋 COPY</button>
+        </div>
       </div>
       <div class="modal-footer vertical-buttons">
         <button class="btn btn-primary" id="btn-resume">⚡ RESUME HEIST</button>

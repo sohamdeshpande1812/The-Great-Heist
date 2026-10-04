@@ -1,10 +1,11 @@
 import { audioManager } from '../engine/AudioManager.js';
 
 export class VaultPuzzle {
-  constructor(facilityMap, securitySystem, showToast) {
+  constructor(facilityMap, securitySystem, showToast, onVaultUnlocked = null) {
     this.facilityMap = facilityMap;
     this.securitySystem = securitySystem;
     this.showToast = showToast;
+    this.onVaultUnlocked = onVaultUnlocked;
 
     this.isVaultUnlocked = false;
     this.syncWindowDuration = 22; // seconds
@@ -61,6 +62,14 @@ export class VaultPuzzle {
 
     // Play cosmetic alarm siren without triggering lockdown
     this.securitySystem.triggerCosmeticAlarm(25);
+
+    if (this.onVaultUnlocked) {
+      try {
+        this.onVaultUnlocked();
+      } catch (e) {
+        console.warn('onVaultUnlocked callback error:', e);
+      }
+    }
   }
 
   resetSwitches() {

@@ -74,6 +74,12 @@ export class HUD {
     this.vaultHudStatus = document.getElementById('hud-vault-status');
     try { localStorage.removeItem('heist_cam_pip_pos'); } catch (e) {}
 
+    // Session Autosync Telemetry HUD
+    this.sessionBadgeEl = document.getElementById('hud-session-badge');
+    this.sessionSyncDot = document.getElementById('hud-session-dot');
+    this.sessionIdEl = document.getElementById('hud-session-id');
+    this.sessionSyncStatusEl = document.getElementById('hud-session-sync-status');
+
     this.setupEventListeners();
   }
 
@@ -110,6 +116,49 @@ export class HUD {
         }
       }
     });
+
+    // 1-Click Copy Session ID from topbar
+    this.sessionBadgeEl?.addEventListener('click', async () => {
+      const id = this.sessionIdEl?.textContent;
+      if (!id || id === 'HEIST-ACTIVE') return;
+      try {
+        await navigator.clipboard.writeText(id);
+        this.showToast(`📋 Session ID copied: ${id}`, 'info');
+      } catch (e) {
+        window.prompt('Copy Session ID:', id);
+      }
+    });
+  }
+
+  setSessionId(id) {
+    if (this.sessionIdEl) {
+      this.sessionIdEl.textContent = id;
+    }
+  }
+
+  setSessionSyncStatus(status = 'synced', label = null) {
+    if (!this.sessionSyncDot || !this.sessionSyncStatusEl) return;
+    this.sessionSyncDot.className = 'session-sync-dot';
+    if (status === 'saving') {
+      this.sessionSyncDot.classList.add('saving');
+      this.sessionSyncStatusEl.textContent = label || 'SAVING...';
+    } else if (status === 'synced') {
+      this.sessionSyncDot.classList.add('synced');
+      this.sessionSyncStatusEl.textContent = label || 'SYNCED';
+    } else if (status === 'offline') {
+      this.sessionSyncDot.classList.add('offline');
+      this.sessionSyncStatusEl.textContent = label || 'LOCAL SAVED';
+    } else {
+      this.sessionSyncDot.classList.add('error');
+      this.sessionSyncStatusEl.textContent = label || 'OFFLINE';
+    }
+  }
+
+  flashAutosaveIndicator() {
+    this.setSessionSyncStatus('saving');
+    setTimeout(() => {
+      this.setSessionSyncStatus('synced');
+    }, 1200);
   }
 
   show() {

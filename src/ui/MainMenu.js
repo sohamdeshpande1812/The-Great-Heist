@@ -384,8 +384,29 @@ export class MainMenu {
     });
   }
 
-  showPauseModal(onResume, onAbort, onSave, onLoad) {
+  showPauseModal(onResume, onAbort, onSave, onLoad, activeSessionId = null) {
     this.pauseModal.classList.remove('hidden');
+
+    const pauseSessionIdEl = document.getElementById('pause-session-id-text');
+    const btnPauseCopy = document.getElementById('btn-pause-copy-id');
+    const sessionId = activeSessionId || localStorage.getItem('the_great_heist_last_session_id') || 'HEIST-ACTIVE';
+    if (pauseSessionIdEl) {
+      pauseSessionIdEl.textContent = sessionId;
+    }
+    if (btnPauseCopy) {
+      btnPauseCopy.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(sessionId);
+          btnPauseCopy.textContent = '✅ COPIED';
+          setTimeout(() => {
+            if (btnPauseCopy) btnPauseCopy.textContent = '📋 COPY';
+          }, 2000);
+        } catch (e) {
+          window.prompt('Copy Session ID:', sessionId);
+        }
+      };
+    }
+
     this.btnResume.onclick = () => {
       this.pauseModal.classList.add('hidden');
       if (onResume) onResume();
