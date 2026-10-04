@@ -4,6 +4,7 @@ export class MainMenu {
   constructor(options = {}) {
     this.onStartGame = options.onStartGame;
     this.onSettingsChanged = options.onSettingsChanged;
+    this.onResumeSession = options.onResumeSession;
 
     // Screens & Modals
     this.mainMenuScreen = document.getElementById('main-menu');
@@ -17,6 +18,7 @@ export class MainMenu {
 
     // Menu Buttons
     this.btnPlay = document.getElementById('btn-play');
+    this.btnResumeSession = document.getElementById('btn-resume-session');
     this.btnHowToPlay = document.getElementById('btn-how-to-play');
     this.btnLeaderboard = document.getElementById('btn-leaderboard');
     this.btnSettings = document.getElementById('btn-settings');
@@ -41,6 +43,8 @@ export class MainMenu {
 
     // Pause Modal Buttons
     this.btnResume = document.getElementById('btn-resume');
+    this.btnPauseSave = document.getElementById('btn-pause-save');
+    this.btnPauseLoad = document.getElementById('btn-pause-load');
     this.btnPauseHtp = document.getElementById('btn-pause-htp');
     this.btnAbort = document.getElementById('btn-abort');
 
@@ -73,6 +77,15 @@ export class MainMenu {
             difficulty,
             controlScheme: 'gesture'
           });
+        }
+      });
+    }
+
+    // Resume Session
+    if (this.btnResumeSession) {
+      this.btnResumeSession.addEventListener('click', () => {
+        if (this.onResumeSession) {
+          this.onResumeSession();
         }
       });
     }
@@ -177,7 +190,7 @@ export class MainMenu {
     }
   }
 
-  showPauseModal(onResume, onAbort) {
+  showPauseModal(onResume, onAbort, onSave, onLoad) {
     this.pauseModal.classList.remove('hidden');
     this.btnResume.onclick = () => {
       this.pauseModal.classList.add('hidden');
@@ -187,6 +200,16 @@ export class MainMenu {
       this.pauseModal.classList.add('hidden');
       if (onAbort) onAbort();
     };
+    if (this.btnPauseSave) {
+      this.btnPauseSave.onclick = () => {
+        if (onSave) onSave();
+      };
+    }
+    if (this.btnPauseLoad) {
+      this.btnPauseLoad.onclick = () => {
+        if (onLoad) onLoad();
+      };
+    }
   }
 
   hidePauseModal() {

@@ -1,21 +1,37 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig({
-  server: {
-    port: 3000,
-    open: false
-  },
-  build: {
-    target: 'esnext'
-  },
-  plugins: [
-    {
-      name: 'vercel-api-dev-middleware',
-      configureServer(server) {
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  if (env.MONGODB_URI && !process.env.MONGODB_URI) {
+    process.env.MONGODB_URI = env.MONGODB_URI;
+  }
+
+  return {
+    server: {
+      port: 3000,
+      open: false
+    },
+    build: {
+      target: 'esnext'
+    },
+    plugins: [
+      {
+        name: 'vercel-api-dev-middleware',
+        configureServer(server) {
         server.middlewares.use(async (req, res, next) => {
-          if (req.url && (req.url === '/api/leaderboard' || req.url.startsWith('/api/leaderboard?'))) {
+          const isLeaderboard = req.url && (req.url === '/api/leaderboard' || req.url.startsWith('/api/leaderboard?'));
+          const isGameSessions = req.url && (req.url === '/api/gameSessions' || req.url.startsWith('/api/gameSessions?'));
+
+          if (isLeaderboard || isGameSessions) {
             try {
-              const { default: handler } = await import('./api/leaderboard.js');
+              const handlerModule = isGameSessions
+                ? await import('./api/gameSessions.js')
+                : await import('./api/leaderboard.js');
+              const handler = handlerModule.default;
+
+              // Parse search params into req.query
+              const url = new URL(req.url, 'http://localhost');
+              req.query = Object.fromEntries(url.searchParams);
 
               // Read request body if present for POST requests
               let body = undefined;
@@ -65,4 +81,5 @@ export default defineConfig({
       }
     }
   ]
+};
 });

@@ -13,6 +13,8 @@ import { HUD } from './ui/HUD.js';
 import { MainMenu } from './ui/MainMenu.js';
 import { LeaderboardView } from './ui/LeaderboardView.js';
 import { ResultsModal } from './ui/ResultsModal.js';
+import { SessionModal } from './ui/SessionModal.js';
+import { LootItem } from './entities/LootItem.js';
 import { MathUtils } from './utils/MathUtils.js';
 import { GestureController } from './engine/GestureController.js';
 
@@ -33,6 +35,14 @@ class Game {
     this.hud = new HUD();
     this.leaderboardView = new LeaderboardView();
     this.resultsModal = new ResultsModal(this.leaderboardView);
+    this.sessionModal = new SessionModal({
+      onSave: () => this.saveSession(),
+      onLoad: (sessionId) => this.loadSession(sessionId),
+      onShowToast: (msg, type) => this.hud.showToast(msg, type)
+    });
+
+    // Cloud Session Identifier
+    this.sessionId = this.generateSessionId();
 
     // Setup Gesture Controller Handlers
     this.gestureController.onGestureDetected = (gesture, details) => {
@@ -86,11 +96,25 @@ class Game {
     // Start Main Render / Game Loop
     this.animate = this.animate.bind(this);
     requestAnimationFrame(this.animate);
+
+    // Auto-resume from URL parameters (?sessionId=XYZ or ?session=XYZ)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlSession = urlParams.get('sessionId') || urlParams.get('session');
+      if (urlSession) {
+        setTimeout(() => {
+          this.loadSession(urlSession).catch(err => {
+            console.warn('URL auto-resume skipped:', err.message);
+          });
+        }, 500);
+      }
+    } catch (e) {}
   }
 
   initMainMenu() {
     this.mainMenu = new MainMenu({
       onStartGame: (cfg) => this.startGame(cfg),
+      onResumeSession: () => this.sessionModal.show({ mode: 'load', game: this }),
       onSettingsChanged: (cfg) => {
         if (cfg.sens) this.input.setSensitivity(cfg.sens);
         if (cfg.graphics) this.renderer.setGraphicsQuality(cfg.graphics);
@@ -111,6 +135,16 @@ class Game {
   }
 
   setupInputCallbacks() {
+    // Quick Save Hotkey (F5)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F5') {
+        e.preventDefault();
+        if (this.state === 'PLAYING') {
+          this.saveSession();
+        }
+      }
+    });
+
     this.input.callbacks.onInteract = () => {
       if (this.state !== 'PLAYING') return;
       this.handlePlayerInteraction();
@@ -281,6 +315,14 @@ class Game {
       document.getElementById('modal-how-to-play').classList.remove('hidden');
     });
 
+    document.getElementById('btn-quick-save')?.addEventListener('click', () => {
+      if (this.state === 'PLAYING') {
+        this.saveSession();
+      } else {
+        this.sessionModal.show({ mode: 'save', game: this });
+      }
+    });
+
     document.getElementById('btn-pause').addEventListener('click', () => {
       this.pauseGame();
     });
@@ -308,6 +350,8 @@ class Game {
   startGame(config = {}) {
     this.playerName = (config && config.name) || 'CYBER_GHOST';
     this.difficulty = (config && config.difficulty) || 'normal';
+    this.sessionId = (config && config.sessionId) || this.generateSessionId();
+    localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
 
     // Start Webcam Gesture Tracking (Player is controlled solely using 3 hand gestures + mouse)
     this.toggleGestureControl(true);
@@ -367,8 +411,268 @@ class Game {
         this.mainMenu.showMainMenu();
         audioManager.stopMusic();
         audioManager.stopAlarm();
+      },
+      () => {
+        // Save
+        this.sessionModal.show({ mode: 'save', game: this });
+      },
+      () => {
+        // Load
+        this.sessionModal.show({ mode: 'load', game: this });
       }
     );
+  }
+
+  generateSessionId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let rand = '';
+    for (let i = 0; i < 6; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `HEIST-${rand}`;
+  }
+
+  /**
+   * Saves the current active game session to MongoDB Atlas via POST /api/gameSessions.
+   */
+  async saveSession() {
+    if (!this.sessionId) {
+      this.sessionId = this.generateSessionId();
+    }
+
+    const payload = {
+      sessionId: this.sessionId,
+      playerName: this.playerName || 'CYBER_GHOST',
+      position: {
+        x: Number(this.player.position.x.toFixed(2)),
+        y: Number(this.player.position.y.toFixed(2)),
+        z: Number(this.player.position.z.toFixed(2))
+      },
+      floor: this.player.getCurrentFloor(),
+      remainingTime: Math.max(0, Math.round(this.timeRemaining)),
+      loot: {
+        carriedValue: this.player.carriedValue,
+        securedValue: this.player.securedValue,
+        totalItemsCollectedCount: this.player.totalItemsCollectedCount
+      },
+      inventory: this.player.carriedLoot.map(item => ({
+        id: item.type.id,
+        typeKey: item.type.id.toUpperCase(),
+        name: item.type.name,
+        value: item.type.value,
+        weight: item.type.weight,
+        icon: item.type.icon
+      })),
+      keycards: Array.from(this.player.keycards),
+      alarmStatus: {
+        isAlarmActive: this.securitySystem.isAlarmActive,
+        alarmTimer: Math.max(0, Math.ceil(this.securitySystem.alarmTimer || 0)),
+        state: this.securitySystem.state
+      },
+      lastSavedTime: new Date().toISOString(),
+      difficulty: this.difficulty,
+      timeElapsed: Math.round(this.timeElapsed),
+      vaultCracked: this.vaultPuzzle.isVaultUnlocked
+    };
+
+    try {
+      const response = await fetch('/api/gameSessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
+      localStorage.setItem('the_great_heist_last_session_meta', JSON.stringify({
+        floor: payload.floor,
+        secured: payload.loot.securedValue,
+        carried: payload.loot.carriedValue,
+        time: new Date().toLocaleTimeString()
+      }));
+
+      try {
+        audioManager.playKeycardChime();
+      } catch (e) {}
+
+      this.hud.showToast(`💾 MISSION SAVED! Session ID: ${this.sessionId}`, 'success');
+
+      return {
+        success: true,
+        sessionId: this.sessionId,
+        data
+      };
+    } catch (err) {
+      console.error('Failed to save session:', err);
+      this.hud.showToast(`⚠️ SAVE FAILED: ${err.message}`, 'danger');
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieves and resumes an active game session from MongoDB Atlas via GET /api/gameSessions?sessionId=...
+   * Restores operative position, inventory, floor, keycards, alarm status, and mission stats.
+   *
+   * @param {string} sessionId
+   */
+  async loadSession(sessionId) {
+    const cleanId = (sessionId || '').trim();
+    if (!cleanId) {
+      throw new Error('Please enter a valid session ID.');
+    }
+
+    this.hud.showToast('🔍 RETRIEVING SESSION FROM CLOUD...', 'info');
+
+    const response = await fetch(`/api/gameSessions?sessionId=${encodeURIComponent(cleanId)}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || errData.error || `Session not found (HTTP ${response.status})`);
+    }
+
+    const data = await response.json();
+    const session = data.session || data;
+
+    if (!session || !session.sessionId) {
+      throw new Error('Received malformed session document from server.');
+    }
+
+    // 1. Session & Player Config
+    this.sessionId = session.sessionId;
+    localStorage.setItem('the_great_heist_last_session_id', this.sessionId);
+    localStorage.setItem('the_great_heist_last_session_meta', JSON.stringify({
+      floor: session.floor || 'Facility',
+      secured: session.loot?.securedValue || 0,
+      carried: session.loot?.carriedValue || 0,
+      time: new Date().toLocaleTimeString()
+    }));
+
+    this.playerName = session.playerName || 'CYBER_GHOST';
+    this.difficulty = session.difficulty || 'normal';
+
+    if (this.difficulty === 'easy') {
+      this.matchDuration = 1080;
+    } else if (this.difficulty === 'hard') {
+      this.matchDuration = 720;
+    } else {
+      this.matchDuration = 900;
+    }
+
+    this.timeRemaining = typeof session.remainingTime === 'number'
+      ? session.remainingTime
+      : (Number(session.remainingTime) || this.matchDuration);
+
+    this.timeElapsed = typeof session.timeElapsed === 'number'
+      ? session.timeElapsed
+      : Math.max(0, this.matchDuration - this.timeRemaining);
+
+    // 2. Reset World & Mechanics Subsystems
+    this.facilityMap.reset();
+    this.securitySystem.reset();
+    this.vaultPuzzle.reset();
+
+    // 3. Restore Player Position & Mesh
+    const spawnPos = session.position
+      ? new THREE.Vector3(Number(session.position.x) || 0, Number(session.position.y) || 0, Number(session.position.z) || 10)
+      : new THREE.Vector3(0, 0, 10);
+
+    this.player.reset(spawnPos, this.playerName);
+
+    const nameEl = document.getElementById('hud-player-name');
+    if (nameEl) {
+      nameEl.textContent = this.playerName.toUpperCase();
+    }
+
+    // 4. Restore Stats & Loot Values
+    this.player.securedValue = Number(session.loot?.securedValue) || 0;
+    this.player.totalItemsCollectedCount = Number(session.loot?.totalItemsCollectedCount) || 0;
+
+    // 5. Restore Keycards
+    this.player.keycards.clear();
+    if (Array.isArray(session.keycards)) {
+      session.keycards.forEach(card => this.player.addKeycard(card));
+      // Hide picked up keycards on facility map
+      this.facilityMap.keycardItems.forEach(kc => {
+        if (session.keycards.includes(kc.type)) {
+          kc.collect();
+        }
+      });
+    }
+
+    // 6. Restore Carried Inventory
+    this.player.carriedLoot = [];
+    this.player.carriedWeight = 0;
+    this.player.carriedValue = 0;
+
+    if (Array.isArray(session.inventory)) {
+      session.inventory.forEach(item => {
+        const typeKey = (item.typeKey || item.id || 'GOLD').toUpperCase();
+        const lootItem = new LootItem(typeKey, this.player.position);
+        lootItem.collect(); // keep item hidden from world scene
+        this.player.carriedLoot.push(lootItem);
+        this.player.carriedWeight += lootItem.type.weight;
+        this.player.carriedValue += lootItem.type.value;
+      });
+    }
+
+    if (session.loot?.carriedValue !== undefined && session.loot.carriedValue > this.player.carriedValue) {
+      this.player.carriedValue = session.loot.carriedValue;
+    }
+
+    // 7. Restore Alarm Status
+    if (session.alarmStatus?.isAlarmActive) {
+      this.securitySystem.isAlarmActive = true;
+      this.securitySystem.alarmTimer = Number(session.alarmStatus.alarmTimer) || 60;
+      this.securitySystem.state = 'alert';
+      this.renderer.setAlarmState(true);
+      try {
+        audioManager.startAlarm();
+      } catch (e) {}
+    } else {
+      this.securitySystem.clearAlarm();
+    }
+
+    // 8. Restore Vault status
+    if (session.vaultCracked) {
+      this.vaultPuzzle.unlockVault();
+    }
+
+    // 9. Close UI Modals & Resume Game
+    this.sessionModal?.hide();
+    this.mainMenu.hideMainMenu();
+    this.mainMenu.hidePauseModal();
+
+    this.toggleGestureControl(true);
+    this.state = 'PLAYING';
+    this.hud.show();
+    this.hud.toggleInventory(false);
+    this.input.requestPointerLock();
+
+    try {
+      audioManager.startMusic();
+      audioManager.playKeycardChime();
+    } catch (e) {}
+
+    const floorLabel = session.floor || this.player.getCurrentFloor();
+    this.hud.showToast(`⚡ SESSION RESUMED: ${this.playerName} on ${floorLabel}`, 'success');
+
+    return {
+      success: true,
+      session
+    };
   }
 
   onExtractionZoneTriggered(zone) {

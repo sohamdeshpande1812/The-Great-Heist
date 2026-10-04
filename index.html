@@ -120,6 +120,7 @@
     <!-- Inventory / Drop List Overlay Toggle Button -->
     <div class="hud-bottom-controls">
       <button class="hud-btn" id="btn-inventory-toggle" title="View & Drop Carried Loot [I]">🎒 INVENTORY [I]</button>
+      <button class="hud-btn" id="btn-quick-save" title="Save Active Session to Cloud [F5]">💾 SAVE</button>
       <button class="hud-btn" id="btn-controls-quick" title="View Controls [H]">📋 CONTROLS [H]</button>
       <button class="hud-btn" id="btn-pause" title="Pause Game [ESC]">⏸️ PAUSE</button>
     </div>
@@ -331,6 +332,10 @@
         </button>
 
         <div class="secondary-btn-row">
+          <button class="btn btn-secondary btn-nav" id="btn-resume-session" title="Resume Saved Cloud Heist">
+            <span class="btn-icon">💾</span>
+            <span class="btn-text">RESUME</span>
+          </button>
           <button class="btn btn-secondary btn-nav" id="btn-how-to-play" title="Mission Briefing &amp; Controls">
             <span class="btn-icon">📋</span>
             <span class="btn-text">BRIEFING</span>
@@ -547,6 +552,83 @@
     </div>
   </div>
 
+  <!-- Game Session Save & Resume Modal -->
+  <div id="modal-session" class="modal-overlay hidden">
+    <div class="modal-dialog session-dialog">
+      <div class="modal-header">
+        <div class="lb-header-title-group">
+          <h2 id="session-modal-title">💾 CLOUD SESSION MANAGER</h2>
+          <span id="session-db-status" class="db-status-pill status-online">
+            <span class="status-pulse-dot"></span>
+            <span class="status-text">MONGODB ATLAS</span>
+          </span>
+        </div>
+        <button class="btn-close-modal" id="btn-close-session">✕</button>
+      </div>
+      <div class="modal-body session-modal-body">
+        <!-- Save Active Session Card -->
+        <div class="session-section" id="section-save-session">
+          <div class="session-section-header">
+            <span class="session-section-icon">💾</span>
+            <div>
+              <h3>SAVE ACTIVE MISSION</h3>
+              <p class="session-section-sub">Persist your current location, loot, inventory, and mission timer to MongoDB Atlas.</p>
+            </div>
+          </div>
+          <div class="session-current-box">
+            <div class="session-field-row">
+              <span class="session-label">ACTIVE SESSION ID:</span>
+              <span class="session-id-display neon-cyan" id="current-session-id-display">NOT STARTED</span>
+              <button class="btn-copy-id" id="btn-copy-session-id" title="Copy Session ID">📋 COPY</button>
+            </div>
+            <div class="session-quick-stats" id="session-current-stats">
+              <!-- Dynamically populated stats summary -->
+            </div>
+          </div>
+          <button class="btn btn-primary btn-session-action" id="btn-confirm-save-session">
+            <span>💾 SAVE MISSION STATE</span>
+          </button>
+        </div>
+
+        <div class="session-divider" id="session-divider-sep">
+          <span>OR</span>
+        </div>
+
+        <!-- Resume / Load Session Card -->
+        <div class="session-section" id="section-load-session">
+          <div class="session-section-header">
+            <span class="session-section-icon">📂</span>
+            <div>
+              <h3>RESUME SAVED MISSION</h3>
+              <p class="session-section-sub">Restore your operative, position, inventory, and stats from the cloud.</p>
+            </div>
+          </div>
+          <div class="session-input-wrapper">
+            <input type="text" id="session-id-input" placeholder="Enter Session ID (e.g. HEIST-A8B9C2)..." spellcheck="false" autocomplete="off" />
+            <button class="btn btn-secondary btn-paste-id" id="btn-paste-session-id" title="Paste from clipboard">📋 PASTE</button>
+          </div>
+          
+          <div class="session-recent-box hidden" id="session-recent-container">
+            <span class="recent-label">RECENT CLOUD SAVE:</span>
+            <button class="btn-recent-session" id="btn-recent-session-load">
+              <span class="recent-id" id="recent-session-id-text">HEIST-XXXXXX</span>
+              <span class="recent-meta" id="recent-session-meta">Lobby • ₹10,000</span>
+            </button>
+          </div>
+
+          <button class="btn btn-success btn-session-action" id="btn-confirm-load-session">
+            <span>⚡ RESUME MISSION</span>
+          </button>
+        </div>
+
+        <div class="session-feedback-msg hidden" id="session-feedback-msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-session-cancel">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
   <!-- In-Game Pause Menu -->
   <div id="modal-pause" class="modal-overlay hidden">
     <div class="modal-dialog pause-dialog">
@@ -558,6 +640,8 @@
       </div>
       <div class="modal-footer vertical-buttons">
         <button class="btn btn-primary" id="btn-resume">⚡ RESUME HEIST</button>
+        <button class="btn btn-secondary" id="btn-pause-save">💾 SAVE ACTIVE SESSION</button>
+        <button class="btn btn-secondary" id="btn-pause-load">📂 RESUME CLOUD SESSION</button>
         <button class="btn btn-secondary" id="btn-pause-htp">📖 MISSION CONTROLS</button>
         <button class="btn btn-danger" id="btn-abort">🚨 ABORT MISSION TO MENU</button>
       </div>
