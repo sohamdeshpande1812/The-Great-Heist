@@ -182,18 +182,40 @@
   <!-- Main Menu Screen -->
   <section id="main-menu" class="screen-overlay active">
     <div class="menu-background" aria-hidden="true">
+      <canvas id="menu-particles" class="menu-particles-canvas"></canvas>
       <div class="cyber-grid"></div>
-      <div class="laser-beam"></div>
+      <div class="cyber-horizon-glow"></div>
+      <div class="cyber-scanlines"></div>
+      <div class="cyber-radar-sweep"></div>
+      <div class="laser-beam laser-beam-h1"></div>
+      <div class="laser-beam laser-beam-h2"></div>
+      <div class="laser-beam laser-beam-v1"></div>
+      <div class="laser-beam laser-beam-diag"></div>
       <div class="menu-spotlight"></div>
       <div class="menu-spotlight menu-spotlight-gold"></div>
     </div>
 
     <!-- Outer Terminal Frame Telemetry Accents -->
     <div class="terminal-frame-hud" aria-hidden="true">
-      <div class="hud-corner top-left"><span class="bracket">◤</span> SEC_CAM // LIVE FEED [01]</div>
-      <div class="hud-corner top-right">TERMINAL // v2.5-PRO <span class="bracket">◥</span></div>
-      <div class="hud-corner bottom-left"><span class="bracket">◣</span> ENCRYPTION // 4096-BIT RSA</div>
-      <div class="hud-corner bottom-right">STATUS // ARMED &amp; READY <span class="bracket">◢</span></div>
+      <div class="hud-corner top-left">
+        <span class="bracket">◤</span>
+        <span class="rec-dot-pulse"></span>
+        <span class="corner-text">SEC_CAM // LIVE FEED [01]</span>
+      </div>
+      <div class="hud-corner top-right">
+        <span class="corner-text">TERMINAL // v2.5-PRO</span>
+        <span class="live-clock" id="hud-live-clock">00:00:00 UTC</span>
+        <span class="bracket">◥</span>
+      </div>
+      <div class="hud-corner bottom-left">
+        <span class="bracket">◣</span>
+        <span class="corner-text">ENCRYPTION // 4096-BIT RSA</span>
+        <span class="crypto-ticker">[SECURE]</span>
+      </div>
+      <div class="hud-corner bottom-right">
+        <span class="corner-text">STATUS // ARMED &amp; READY</span>
+        <span class="bracket">◢</span>
+      </div>
     </div>
 
     <div class="menu-content menu-layout">
@@ -202,41 +224,72 @@
         <div class="terminal-status-badge">
           <span class="status-pulse-dot"></span>
           <span class="status-badge-text">SECURE LINK ESTABLISHED // SECTOR 04</span>
+          <span class="badge-ping-tag" id="badge-ping-tag">12ms</span>
         </div>
 
         <div class="game-logo">
           <div class="logo-sub">
             <span class="sub-decor">──</span>
             <span class="sub-text">HIGH-STAKES 3D INFILTRATION</span>
+            <span class="sub-decor">──</span>
           </div>
           <h1 class="logo-main" data-text="THE GREAT HEIST">THE GREAT <span class="logo-accent">HEIST</span></h1>
+          <div class="logo-underline-bar">
+            <span class="bar-laser"></span>
+          </div>
           <div class="logo-tagline">
-            <span class="tag-word">STEAL</span>
+            <span class="tag-word tag-word-1">STEAL</span>
             <span class="tag-separator">◆</span>
-            <span class="tag-word">RISK</span>
+            <span class="tag-word tag-word-2">RISK</span>
             <span class="tag-separator">◆</span>
-            <span class="tag-word">ESCAPE</span>
+            <span class="tag-word tag-word-3">ESCAPE</span>
           </div>
         </div>
 
         <p class="menu-pitch">Slip past the cameras, lift the keycards, crack the vault and get out before the clock hits zero.</p>
 
         <ul class="menu-stats" aria-label="Mission overview">
-          <li><strong>04</strong><span>FLOORS</span></li>
-          <li><strong>03</strong><span>KEYCARDS</span></li>
-          <li><strong>03</strong><span>EXITS</span></li>
-          <li><strong class="neon-gold">15:00</strong><span>TIMER</span></li>
+          <li class="stat-chip" data-stat="floors">
+            <div class="stat-chip-corner tl"></div>
+            <div class="stat-chip-corner br"></div>
+            <strong>04</strong>
+            <span>FLOORS</span>
+          </li>
+          <li class="stat-chip" data-stat="keycards">
+            <div class="stat-chip-corner tl"></div>
+            <div class="stat-chip-corner br"></div>
+            <strong>03</strong>
+            <span>KEYCARDS</span>
+          </li>
+          <li class="stat-chip" data-stat="exits">
+            <div class="stat-chip-corner tl"></div>
+            <div class="stat-chip-corner br"></div>
+            <strong>03</strong>
+            <span>EXITS</span>
+          </li>
+          <li class="stat-chip" data-stat="timer">
+            <div class="stat-chip-corner tl"></div>
+            <div class="stat-chip-corner br"></div>
+            <strong class="neon-gold">15:00</strong>
+            <span>TIMER</span>
+          </li>
         </ul>
       </header>
 
       <!-- Tactical Operative Dossier Card -->
-      <aside class="player-input-card menu-panel">
+      <aside class="player-input-card menu-panel" id="player-dossier-card">
+        <div class="card-border-beam" aria-hidden="true"></div>
+        <div class="biometric-scanner-line" aria-hidden="true"></div>
+        
         <div class="card-tech-header">
           <div class="card-title-group">
             <span class="card-tech-icon">⚡</span>
             <span class="card-title-text">INFILTRATION DOSSIER</span>
           </div>
-          <span class="card-clearance-tag">CLEARANCE: LVL_4</span>
+          <span class="card-clearance-tag">
+            <span class="clearance-beacon"></span>
+            CLEARANCE: LVL_4 [VERIFIED]
+          </span>
         </div>
 
         <div class="card-field-group">
@@ -247,6 +300,7 @@
           <div class="input-glow-wrapper">
             <span class="input-prefix">AGENT //</span>
             <input type="text" id="player-name-input" maxlength="15" value="CYBER_GHOST" placeholder="Enter codename..." autocomplete="off" spellcheck="false" />
+            <span class="input-pulse-cursor"></span>
           </div>
         </div>
 
@@ -254,26 +308,34 @@
         <div class="card-field-group control-scheme-container">
           <div class="field-label-row">
             <label>CONTROL PROTOCOL</label>
-            <span class="protocol-tag">🖐️ HAND TRACKER + MOUSE</span>
+            <span class="protocol-tag"><span class="protocol-live-dot"></span> 🖐️ HAND TRACKER + MOUSE</span>
           </div>
           <div id="gesture-preview-tip" class="gesture-preview-tip">
             <div class="gesture-legend-grid four-cols">
-              <div class="gesture-legend-item">
+              <div class="gesture-legend-item" data-gesture="palm">
+                <span class="g-corner tl"></span>
+                <span class="g-corner br"></span>
                 <span class="g-icon">🖐️</span>
                 <span class="g-name">Open Palm</span>
                 <span class="g-action">Walk</span>
               </div>
-              <div class="gesture-legend-item">
+              <div class="gesture-legend-item" data-gesture="pinch">
+                <span class="g-corner tl"></span>
+                <span class="g-corner br"></span>
                 <span class="g-icon">👌</span>
                 <span class="g-name">Pinch</span>
                 <span class="g-action">Interact</span>
               </div>
-              <div class="gesture-legend-item">
+              <div class="gesture-legend-item" data-gesture="fist">
+                <span class="g-corner tl"></span>
+                <span class="g-corner br"></span>
                 <span class="g-icon">✊</span>
                 <span class="g-name">Fist</span>
                 <span class="g-action">Stop</span>
               </div>
-              <div class="gesture-legend-item">
+              <div class="gesture-legend-item" data-gesture="mouse">
+                <span class="g-corner tl"></span>
+                <span class="g-corner br"></span>
                 <span class="g-icon">🖱️</span>
                 <span class="g-name">Mouse</span>
                 <span class="g-action">Aim</span>
@@ -317,6 +379,8 @@
       <div class="menu-actions">
         <div class="menu-buttons">
           <button class="btn btn-primary btn-start-heist" id="btn-play">
+            <span class="btn-pulse-ring ring-1"></span>
+            <span class="btn-pulse-ring ring-2"></span>
             <span class="btn-shimmer"></span>
             <span class="btn-content">
               <span class="btn-icon-flash">⚡</span>
@@ -327,6 +391,8 @@
 
           <div class="secondary-btn-row">
             <button class="btn btn-secondary btn-nav" id="btn-resume-session" title="Resume Saved Cloud Heist">
+              <span class="btn-corner-reticle tl"></span>
+              <span class="btn-corner-reticle br"></span>
               <span class="btn-icon">💾</span>
               <span class="btn-label">
                 <span class="btn-text">RESUME</span>
@@ -334,6 +400,8 @@
               </span>
             </button>
             <button class="btn btn-secondary btn-nav" id="btn-how-to-play" title="Mission Briefing &amp; Controls">
+              <span class="btn-corner-reticle tl"></span>
+              <span class="btn-corner-reticle br"></span>
               <span class="btn-icon">📋</span>
               <span class="btn-label">
                 <span class="btn-text">BRIEFING</span>
@@ -341,6 +409,8 @@
               </span>
             </button>
             <button class="btn btn-secondary btn-nav" id="btn-leaderboard" title="Top Operatives &amp; Extracted Money">
+              <span class="btn-corner-reticle tl"></span>
+              <span class="btn-corner-reticle br"></span>
               <span class="btn-icon">🏆</span>
               <span class="btn-label">
                 <span class="btn-text">RECORDS</span>
@@ -348,6 +418,8 @@
               </span>
             </button>
             <button class="btn btn-secondary btn-nav" id="btn-settings" title="Audio &amp; Sensitivity Config">
+              <span class="btn-corner-reticle tl"></span>
+              <span class="btn-corner-reticle br"></span>
               <span class="btn-icon">⚙️</span>
               <span class="btn-label">
                 <span class="btn-text">CONFIG</span>

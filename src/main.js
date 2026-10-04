@@ -93,6 +93,16 @@ class Game {
     // Add Player Mesh to Scene
     this.renderer.scene.add(this.player.mesh);
 
+    // Interactive Menu 3D Camera Orbit & Mouse Parallax
+    this.menuCameraAngle = 0.6;
+    this.mouseParallax = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    window.addEventListener('mousemove', (e) => {
+      if (this.state === 'MENU') {
+        this.mouseParallax.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+        this.mouseParallax.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+      }
+    }, { passive: true });
+
     // Start Main Render / Game Loop
     this.animate = this.animate.bind(this);
     requestAnimationFrame(this.animate);
@@ -1075,6 +1085,29 @@ class Game {
           }
         }
       );
+    } else if (this.state === 'MENU') {
+      // Cinematic 3D Camera Orbit & Mouse Parallax behind Main Menu
+      this.mouseParallax.x += (this.mouseParallax.targetX - this.mouseParallax.x) * 0.05;
+      this.mouseParallax.y += (this.mouseParallax.targetY - this.mouseParallax.y) * 0.05;
+      this.menuCameraAngle += delta * 0.08;
+
+      const camRadius = 16.0;
+      const camX = Math.sin(this.menuCameraAngle) * camRadius + this.mouseParallax.x * 2.2;
+      const camZ = Math.cos(this.menuCameraAngle) * camRadius + this.mouseParallax.y * 1.8;
+      const camY = 4.8 + Math.sin(time * 0.5) * 0.6 - this.mouseParallax.y * 1.2;
+
+      this.renderer.camera.position.set(camX, camY, camZ);
+      this.renderer.camera.lookAt(0, 1.8, 0);
+
+      // Animate ambient facility props & rotating loot in glass cases
+      if (this.facilityMap) {
+        this.facilityMap.update(
+          delta,
+          time,
+          new THREE.Vector3(0, 0, 0),
+          () => {}
+        );
+      }
     }
 
     // Always render 3D Scene
