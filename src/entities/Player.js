@@ -333,10 +333,14 @@ export class Player {
     this.physics.resolveCollisions(this.position, 0.45, 1.8);
 
     // Hard boundary clamping: Inner walkable boundary of facility outer perimeter walls
-    // Facility outer walls: X in [-16.5, 16.5] (1m thick, inner edge at ±16.0), Z in [-22, 22] (1m thick, inner edge at ±21.5)
-    // With player radius 0.45, safe bounds are X: [-15.5, 15.5], Z: [-21.0, 21.0]
-    this.position.x = MathUtils.clamp(this.position.x, -15.5, 15.5);
-    this.position.z = MathUtils.clamp(this.position.z, -21.0, 21.0);
+    // Facility outer walls: X in [-16.5, 16.5] (inner edge ±16.0), Z in [-22, 22] (inner edge ±21.5)
+    // Underground Garage annex extends Z from 22.0 to 42.0 (inner edge 41.5), X from -14.0 to 14.0 (inner edge ±13.5)
+    const isUnderground = this.position.y < -4.0;
+    const maxZ = isUnderground ? 41.0 : 21.0;
+    const maxX = (isUnderground && this.position.z > 21.5) ? 13.0 : 15.5;
+
+    this.position.x = MathUtils.clamp(this.position.x, -maxX, maxX);
+    this.position.z = MathUtils.clamp(this.position.z, -21.0, maxZ);
     this.position.y = Math.max(-8.0, this.position.y);
 
     this.mesh.position.copy(this.position);

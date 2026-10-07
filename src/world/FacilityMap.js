@@ -530,9 +530,9 @@ export class FacilityMap {
     levels.forEach(y => {
       if (y === -8) {
         // Underground North Wall has open portal leading into the Underground Garage Annex
-        this.addWall(-10.25, -8, 22, 12.5, 6, 1);   // West section (X: -16.5 to -4.0)
-        this.addWall(10.25, -8, 22, 12.5, 6, 1);    // East section (X: 4.0 to 16.5)
-        this.addWall(0, -8 + 4.2, 22, 8.0, 1.8, 1); // Overhead lintel over portal (width 8.0m)
+        this.addWall(-10.5, -8, 22, 12.0, 6, 1);    // West section (X: -16.5 to -4.5)
+        this.addWall(10.5, -8, 22, 12.0, 6, 1);     // East section (X: 4.5 to 16.5)
+        this.addWall(0, -8 + 4.2, 22, 9.0, 1.8, 1); // Overhead lintel over portal (width 9.0m, X: -4.5 to 4.5)
 
         // Underground Garage Annex Boundary Walls (X: -14 to 14, Z: 22 to 42)
         this.addWall(0, -8, 42, 28, 6, 1);          // North Outer Wall of Garage
