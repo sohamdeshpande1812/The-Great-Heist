@@ -16,7 +16,7 @@ export class SecurityCamera {
     this.sweepTimer = this.sweepPhase;
 
     this.detectionLevel = 0; // 0 to 1
-    this.detectionRate = options.detectionRate || (1 / 3); // ~3.0s of continuous detection required before initiating lockdown
+    this.detectionRate = options.detectionRate || 0.5; // ~2.0s of continuous detection required before initiating lockdown
     this.decayRate = 0.5;
     this.state = 'safe';
 
