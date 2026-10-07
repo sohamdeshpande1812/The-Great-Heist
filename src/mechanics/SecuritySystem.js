@@ -9,7 +9,7 @@ export class SecuritySystem {
     this.maxDetectionRatio = 0; // 0 to 1
     this.isAlarmActive = false;
     this.alarmTimer = 0;
-    this.alarmDuration = 60; // 60 seconds (1 minute) alert mode
+    this.alarmDuration = 30; // 30 seconds alert mode
     this.cosmeticAlarmTimer = 0;
   }
 
@@ -86,11 +86,11 @@ export class SecuritySystem {
     audioManager.startAlarm();
 
     if (reason === 'VAULT_BREACH') {
-      this.showToast('🚨 MAJOR FACILITY ALERT: Vault security triggered! All looting locked for 1 min!', 'warning');
+      this.showToast('🚨 MAJOR FACILITY ALERT: Vault security triggered! All looting locked for 30s!', 'warning');
     } else if (reason === 'LASER_TRIPPED') {
-      this.showToast('⚡ LASER BREACH: Vault tripwire tripped! Facility lockdown — looting disabled for 1 min!', 'danger');
+      this.showToast('⚡ LASER BREACH: Vault tripwire tripped! Facility lockdown — looting disabled for 30s!', 'danger');
     } else {
-      this.showToast('🚨 SECURITY ALERT: Camera spotted intrusion! Facility lockdown — looting disabled for 1 min!', 'warning');
+      this.showToast('🚨 SECURITY ALERT: Camera spotted intrusion! Facility lockdown — looting disabled for 30s!', 'warning');
     }
   }
 

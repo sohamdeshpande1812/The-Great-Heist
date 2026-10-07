@@ -741,7 +741,7 @@ class Game {
     // 7. Restore Alarm Status
     if (session.alarmStatus?.isAlarmActive) {
       this.securitySystem.isAlarmActive = true;
-      this.securitySystem.alarmTimer = Number(session.alarmStatus.alarmTimer) || 60;
+      this.securitySystem.alarmTimer = Number(session.alarmStatus.alarmTimer) || 30;
       this.securitySystem.state = 'alert';
       this.renderer.setAlarmState(true);
       try {
