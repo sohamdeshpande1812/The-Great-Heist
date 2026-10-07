@@ -338,10 +338,14 @@ export class FacilityMap {
     corridorStrip2.position.set(0, 13.9, 0);
     this.scene.add(corridorStrip2);
 
-    // Underground corridor
+    // Underground corridor & Underground Garage
     const corridorStripUG = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 44), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
     corridorStripUG.position.set(0, -2.05, 0);
     this.scene.add(corridorStripUG);
+
+    const garageStripUG = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 20), goldMat);
+    garageStripUG.position.set(0, -2.05, 32);
+    this.scene.add(garageStripUG);
 
     // ---- Baseboard neon accent strips at floor level along outer corridor walls ----
     const baseMat = new THREE.MeshBasicMaterial({ color: 0x00c8dd });
@@ -482,6 +486,17 @@ export class FacilityMap {
     ceilUG.position.y = -2.0;
     this.scene.add(ceilUG);
 
+    // 1b. Underground Garage Annex Floor & Ceiling (Y = -8 to -2.0, X: -14 to 14, Z: 22 to 42)
+    const floorUGGarage = new THREE.Mesh(new THREE.PlaneGeometry(28, 20), this.materials.floorUnderground);
+    floorUGGarage.rotation.x = -Math.PI / 2;
+    floorUGGarage.position.set(0, -8, 32);
+    this.scene.add(floorUGGarage);
+
+    const ceilUGGarage = new THREE.Mesh(new THREE.PlaneGeometry(28, 20), this.materials.ceiling);
+    ceilUGGarage.rotation.x = Math.PI / 2;
+    ceilUGGarage.position.set(0, -2.0, 32);
+    this.scene.add(ceilUGGarage);
+
     // 2. Ground Floor (Y = 0) & Ceiling (Y = 6.0)
     const floorGround = new THREE.Mesh(new THREE.PlaneGeometry(w, d), this.materials.floorGround);
     floorGround.rotation.x = -Math.PI / 2;
@@ -513,10 +528,22 @@ export class FacilityMap {
     // Airtight Outer Perimeter Boundary Walls for Each Level (Height 6m per floor)
     const levels = [-8, 0, 8];
     levels.forEach(y => {
-      this.addWall(0, y, 22, 33, 6, 1);     // North Outer Wall
-      this.addWall(0, y, -22, 33, 6, 1);    // South Outer Wall
-      this.addWall(-16.5, y, 0, 1, 6, 44);  // West Outer Wall (Room width = 12m)
-      this.addWall(16.5, y, 0, 1, 6, 44);   // East Outer Wall (Room width = 12m)
+      if (y === -8) {
+        // Underground North Wall has open portal leading into the Underground Garage Annex
+        this.addWall(-10.25, -8, 22, 12.5, 6, 1);   // West section (X: -16.5 to -4.0)
+        this.addWall(10.25, -8, 22, 12.5, 6, 1);    // East section (X: 4.0 to 16.5)
+        this.addWall(0, -8 + 4.2, 22, 8.0, 1.8, 1); // Overhead lintel over portal (width 8.0m)
+
+        // Underground Garage Annex Boundary Walls (X: -14 to 14, Z: 22 to 42)
+        this.addWall(0, -8, 42, 28, 6, 1);          // North Outer Wall of Garage
+        this.addWall(-14, -8, 32, 1, 6, 20);        // West Outer Wall of Garage
+        this.addWall(14, -8, 32, 1, 6, 20);         // East Outer Wall of Garage
+      } else {
+        this.addWall(0, y, 22, 33, 6, 1);           // North Outer Wall
+      }
+      this.addWall(0, y, -22, 33, 6, 1);            // South Outer Wall
+      this.addWall(-16.5, y, 0, 1, 6, 44);          // West Outer Wall (Room width = 12m)
+      this.addWall(16.5, y, 0, 1, 6, 44);           // East Outer Wall (Room width = 12m)
     });
   }
 
@@ -643,24 +670,41 @@ export class FacilityMap {
     this.addSolidProp(Props.createCargoCrates(new THREE.Vector3(-7.5, y, -4), -0.3));
     this.addSolidProp(Props.createWeaponGearLocker(new THREE.Vector3(-6.5, y, -21.4), 0));
 
-    // --- 4. TACTICAL GARAGE [COMPACT 12m x 22m] (North-East, X: 4.5 to 16.5, Z: 0 to 22) ---
+    // --- 4. CENTRAL SECURITY & SURVEILLANCE ANNEX [COMPACT 12m x 22m] (North-East, X: 4.5 to 16.5, Z: 0 to 22) ---
     this.addDoor({ position: new THREE.Vector3(4.5, y, 12), rotation: Math.PI / 2, type: 'normal' });
-    this.scene.add(Props.createSignboard(new THREE.Vector3(4.5, y + 4.6, 12), 'GARAGE EXIT', 0xffd700, -Math.PI / 2).group);
+    this.scene.add(Props.createSignboard(new THREE.Vector3(4.5, y + 4.6, 12), 'SECURITY ANNEX & ARMORY', 0x38bdf8, -Math.PI / 2).group);
 
-    this.addSolidProp(Props.createArmoredVan(new THREE.Vector3(10.5, y, 8), 0));
-    this.addSolidProp(Props.createHydraulicCarLift(new THREE.Vector3(11.0, y, 17), 0));
+    // Surveillance CCTV Video Wall on North Wall
+    this.addSolidProp(Props.createSurveillanceVideoWall(new THREE.Vector3(10.5, y, 21.7), 0));
 
-    // Mechanic Workbench & Tools along East Wall
-    this.addSolidProp(Props.createMechanicWorkbench(new THREE.Vector3(15.8, y, 19), -Math.PI / 2));
-    this.addSolidProp(Props.createRollingToolCart(new THREE.Vector3(15.8, y, 16.5), -Math.PI / 2));
+    // Tactical Armory on East Wall
+    this.addSolidProp(Props.createTacticalWeaponRack(new THREE.Vector3(16.0, y, 18), -Math.PI / 2));
+    this.addSolidProp(Props.createTacticalWeaponRack(new THREE.Vector3(16.0, y, 14), -Math.PI / 2));
 
-    // Tactical Tire Stacks & Compressor
-    this.addSolidProp(Props.createTireStack(new THREE.Vector3(16.0, y, 13), 4));
-    this.addSolidProp(Props.createTireStack(new THREE.Vector3(16.0, y, 14.5), 3));
-    this.addSolidProp(Props.createAirCompressor(new THREE.Vector3(15.8, y, 21.2), -Math.PI / 2));
+    // Weapon Lockers along North & East walls
+    this.addSolidProp(Props.createWeaponGearLocker(new THREE.Vector3(14.2, y, 21.4), 0));
+    this.addSolidProp(Props.createWeaponGearLocker(new THREE.Vector3(16.0, y, 10), -Math.PI / 2));
 
-    this.addSolidProp(Props.createCargoCrates(new THREE.Vector3(7.0, y, 19)));
+    // Security Command Desks & Tactical Workstations (All Solid)
+    this.addSolidProp(Props.createTechDesk(new THREE.Vector3(10.5, y, 16), Math.PI));
+    this.addSolidProp(Props.createOfficeChair(new THREE.Vector3(10.5, y, 14.8), 0));
+
+    this.addSolidProp(Props.createTechDesk(new THREE.Vector3(7.2, y, 8), Math.PI / 2));
+    this.addSolidProp(Props.createOfficeChair(new THREE.Vector3(8.4, y, 8), -Math.PI / 2));
+
+    this.addSolidProp(Props.createTechDesk(new THREE.Vector3(10.5, y, 4), 0));
+    this.addSolidProp(Props.createOfficeChair(new THREE.Vector3(10.5, y, 5.2), Math.PI));
+
+    // Server Racks along East Wall
+    for (let i = 0; i < 3; i++) {
+      this.addSolidProp(Props.createServerRack(new THREE.Vector3(16.0, y, 3 + i * 2.2)));
+    }
+
+    // Emergency Station & Room Details
+    this.scene.add(Props.createEmergencyMedicalStation(new THREE.Vector3(5.0, y, 18), Math.PI / 2).group);
+    this.addSolidProp(Props.createWhiteboard(new THREE.Vector3(6.8, y, 21.7), 0));
     this.addSolidProp(Props.createFilingCabinet(new THREE.Vector3(5.0, y, 7), Math.PI / 2));
+    this.addSolidProp(Props.createWaterCooler(new THREE.Vector3(5.0, y, 16)));
 
     // --- 5. ADMINISTRATIVE OFFICE BULLPEN [COMPACT 12m x 22m] (South-East, X: 4.5 to 16.5, Z: -22 to 0) ---
     this.addDoor({ position: new THREE.Vector3(4.5, y, -12), rotation: Math.PI / 2, type: 'normal' });
@@ -953,6 +997,41 @@ export class FacilityMap {
 
     const depositWallEast = Props.createSafetyDepositWall(new THREE.Vector3(16.0, y, -11), 21.0, 4.0, -Math.PI / 2);
     this.addSolidProp(depositWallEast);
+
+    // --- 5. SUBTERRANEAN TACTICAL GARAGE & GETAWAY BAY (X: -14 to 14, Z: 22 to 42, Y: -8) ---
+    // Entrance Portal Signboards
+    this.scene.add(Props.createSignboard(new THREE.Vector3(0, y + 4.5, 21.6), 'UNDERGROUND GETAWAY GARAGE', 0xffd700, 0).group);
+    this.scene.add(Props.createSignboard(new THREE.Vector3(0, y + 4.5, 22.4), 'CENTRAL CORRIDOR / ELEVATOR', 0x00f0ff, Math.PI).group);
+
+    // Armored Getaway Van (Parked for extraction)
+    this.addSolidProp(Props.createArmoredVan(new THREE.Vector3(4.5, y, 32), 0));
+
+    // Hydraulic Car Lift with elevated maintenance platform
+    this.addSolidProp(Props.createHydraulicCarLift(new THREE.Vector3(-6.5, y, 33), 0));
+
+    // Mechanic Workbench & Tools along East Wall
+    this.addSolidProp(Props.createMechanicWorkbench(new THREE.Vector3(13.2, y, 32), -Math.PI / 2));
+    this.addSolidProp(Props.createRollingToolCart(new THREE.Vector3(13.2, y, 27), -Math.PI / 2));
+    this.addSolidProp(Props.createAirCompressor(new THREE.Vector3(13.2, y, 38), -Math.PI / 2));
+
+    // Heavy Tire Stacks
+    this.addSolidProp(Props.createTireStack(new THREE.Vector3(13.2, y, 24), 4));
+    this.addSolidProp(Props.createTireStack(new THREE.Vector3(13.2, y, 35.5), 3));
+
+    // Industrial Logistics, Pallets & Drums along West Wall
+    this.addSolidProp(Props.createCargoCrates(new THREE.Vector3(-11.5, y, 26), 0.2));
+    this.addSolidProp(Props.createCargoCrates(new THREE.Vector3(-11.5, y, 38), -0.3));
+    this.addSolidProp(Props.createIndustrialDrums(new THREE.Vector3(-11.5, y, 32), 4));
+    this.addSolidProp(Props.createPalletJack(new THREE.Vector3(-1.5, y, 36), -Math.PI / 4));
+
+    // Overhead Industrial Lighting in Vehicle Bay
+    const garageLight1 = new THREE.PointLight(0xffa500, 1.4, 22);
+    garageLight1.position.set(4.5, y + 4.5, 32);
+    this.scene.add(garageLight1);
+
+    const garageLight2 = new THREE.PointLight(0x38bdf8, 1.2, 20);
+    garageLight2.position.set(-6.5, y + 4.5, 33);
+    this.scene.add(garageLight2);
   }
 
   buildRooftop() {
@@ -1081,15 +1160,15 @@ export class FacilityMap {
         ropeColor: 0x0284c7
       },
 
-      // 4. Ground Floor Tactical Garage (Maintenance Inspection Pedestal)
+      // 4. Ground Floor Security Annex (Central Display Showcase)
       {
         type: 'DIAMOND',
-        casePos: new THREE.Vector3(14.5, 0, 19),
-        lootPos: new THREE.Vector3(14.5, 1.2, 19),
-        name: 'Smuggled Garage Diamond',
-        glowColor: 0x00f0ff,
+        casePos: new THREE.Vector3(10.5, 0, 11),
+        lootPos: new THREE.Vector3(10.5, 1.2, 11),
+        name: 'Security Prototype Diamond',
+        glowColor: 0x38bdf8,
         hasStanchions: true,
-        ropeColor: 0xf59e0b
+        ropeColor: 0x0284c7
       },
 
       // 5. 2nd Floor Bio-Cyber Lab (Central Cleanroom Quarantine Showcase)
@@ -1212,6 +1291,8 @@ export class FacilityMap {
       { type: 'GOLD', lootPos: new THREE.Vector3(-12.8, 0.45, -8), safePos: new THREE.Vector3(-13.0, 0, -8), rot: Math.PI / 2, name: 'Storage Vault Safe' },
       // Ground Floor: Security HQ
       { type: 'GOLD', lootPos: new THREE.Vector3(-15.6, 0.45, 14), safePos: new THREE.Vector3(-15.8, 0, 14), rot: Math.PI / 2, name: 'Security HQ Safe' },
+      // Ground Floor: Security Annex & Armory
+      { type: 'GOLD', lootPos: new THREE.Vector3(15.6, 0.45, 18), safePos: new THREE.Vector3(15.8, 0, 18), rot: -Math.PI / 2, name: 'Security Armory Safe' },
       // Ground Floor: Admin Finance
       { type: 'GOLD', lootPos: new THREE.Vector3(15.6, 0.45, -20), safePos: new THREE.Vector3(15.8, 0, -20), rot: -Math.PI / 2, name: 'Administrative Floor Safe' },
       // 2nd Floor: VIP CEO Suite
@@ -1253,8 +1334,10 @@ export class FacilityMap {
       { type: 'GOLD', pos: new THREE.Vector3(-15.8, 1.65, -15) },      // On Storage Warehouse High-Bay Rack 2
       { type: 'GOLD', pos: new THREE.Vector3(-10.5, 0.55, -8) },       // On Gold Bullion Pallet beside Pallet Jack
       { type: 'WATCH', pos: new THREE.Vector3(-7.2, 0.9, -15) },       // On Logistics Shipping Desk
-      { type: 'WATCH', pos: new THREE.Vector3(15.6, 0.95, 19) },       // In plain sight on Garage Mechanic's Workbench
-      { type: 'GOLD', pos: new THREE.Vector3(7.6, 0.45, 8.0) },        // In open lockbox beside Getaway Van walkway
+      { type: 'WATCH', pos: new THREE.Vector3(10.5, 1.15, 16) },       // On Command Desk in Security Annex
+      { type: 'PROTOTYPE', pos: new THREE.Vector3(7.2, 1.15, 8) },     // On Surveillance Desk in Security Annex
+      { type: 'GOLD', pos: new THREE.Vector3(10.5, 1.15, 4) },         // On Tactical Supervisor Desk in Security Annex
+      { type: 'GOLD', pos: new THREE.Vector3(15.6, 1.1, 8) },          // On Armory Storage Rack in Security Annex
       { type: 'WATCH', pos: new THREE.Vector3(15.8, 0.9, -9) },        // In luxury case on Admin Credenza Sideboard
       { type: 'GOLD', pos: new THREE.Vector3(8.0, 0.85, -8) },         // On Admin Bullpen Desk
       { type: 'GOLD', pos: new THREE.Vector3(7.5, 0.95, -21.4) },      // On Admin Coffee Station Counter
@@ -1266,7 +1349,7 @@ export class FacilityMap {
       { type: 'GOLD', pos: new THREE.Vector3(15.6, 8.95, 15) },        // On VIP Bar Cart
       { type: 'GOLD', pos: new THREE.Vector3(15.6, 8.95, -12.0) },      // On Boardroom Credenza Sideboard
 
-      // Underground Vault Level:
+      // Underground Vault & Garage:
       { type: 'DIAMOND', pos: new THREE.Vector3(-10.5, -7.0, 19.0) },    // On Tech Workstation Desk in Substation B
       { type: 'DIAMOND', pos: new THREE.Vector3(10.5, -7.0, 19.0) },     // On Tech Workstation Desk in Reactor A
       { type: 'PROTOTYPE', pos: new THREE.Vector3(-12.0, -6.8, -21.4) }, // On Evidence Shelving
@@ -1276,6 +1359,9 @@ export class FacilityMap {
       { type: 'GOLD', pos: new THREE.Vector3(13.5, -6.8, -20) },       // On Vault Gold Pallet 4
       { type: 'DIAMOND', pos: new THREE.Vector3(10.5, -6.6, -21.2) },  // Open Safety Deposit Box 1
       { type: 'DIAMOND', pos: new THREE.Vector3(15.6, -6.6, -11) },    // Open Safety Deposit Box 2
+      { type: 'WATCH', pos: new THREE.Vector3(13.0, -7.05, 32) },      // On Mechanic Workbench in Underground Garage
+      { type: 'GOLD', pos: new THREE.Vector3(1.8, -7.55, 32) },        // Beside Armored Getaway Van in Underground Garage
+      { type: 'DIAMOND', pos: new THREE.Vector3(-6.5, -6.8, 33) },     // On Hydraulic Car Lift Console in Underground Garage
 
       // Rooftop:
       { type: 'DIAMOND', pos: new THREE.Vector3(-10.0, 17.5, -14) },   // In HVAC Inspection Box 1
@@ -1296,17 +1382,18 @@ export class FacilityMap {
     const camConfigs = [
       // Ground Floor: Deep restricted zones only
       { position: new THREE.Vector3(-15.0, 4.8, 20), floorY: 0, baseAngle: -Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 0 },   // Inside Security HQ
-      { position: new THREE.Vector3(15.0, 4.8, 6), floorY: 0, baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.8, sweepPhase: 1.5 },     // Inside Garage Approach
+      { position: new THREE.Vector3(15.0, 4.8, 6), floorY: 0, baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.8, sweepPhase: 1.5 },     // Inside Security Annex & Armory
 
       // Second Floor: Corridors
       { position: new THREE.Vector3(0, 12.8, 12), floorY: 8, baseAngle: Math.PI, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.7, sweepPhase: 0.8 },        // 2F North corridor sweep
       { position: new THREE.Vector3(0, 12.8, -12), floorY: 8, baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.6, sweepSpeed: 0.72, sweepPhase: 2.2 },            // 2F South corridor sweep
 
-      // Underground: Substation & Vault Approach
+      // Underground: Substation, Vault Approach & Underground Garage
       { position: new THREE.Vector3(0, -3.0, 12), floorY: -8, baseAngle: 0, range: 10, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.0 },              // UG North Corridor sweep
       { position: new THREE.Vector3(-3.8, -3.0, -14), floorY: -8, baseAngle: Math.PI / 2, range: 9, sweepAngle: Math.PI * 0.55, sweepSpeed: 0.75, sweepPhase: 1.8 }, // Directly In Front of Vault Door
       { position: new THREE.Vector3(15.0, -3.0, 20), floorY: -8, baseAngle: Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 2.8 },    // Switch A Reactor room
-      { position: new THREE.Vector3(-15.0, -3.0, 20), floorY: -8, baseAngle: -Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 0.3 }    // Switch B Substation room
+      { position: new THREE.Vector3(-15.0, -3.0, 20), floorY: -8, baseAngle: -Math.PI / 2, range: 8, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.85, sweepPhase: 0.3 },   // Switch B Substation room
+      { position: new THREE.Vector3(12.0, -3.2, 38), floorY: -8, baseAngle: -Math.PI * 0.75, range: 11, sweepAngle: Math.PI * 0.5, sweepSpeed: 0.75, sweepPhase: 0.5 } // Underground Getaway Garage Vehicle Bay
     ];
 
     camConfigs.forEach(cfg => {
@@ -1328,11 +1415,11 @@ export class FacilityMap {
     this.scene.add(mainExit.group);
     this.extractionZones.push(mainExit);
 
-    // 2. 🟡 Garage Exit (Ground Floor East Garage)
+    // 2. 🟡 Underground Getaway Van (Underground Floor Garage)
     const garageExit = Props.createExtractionZone({
       id: 'garage',
-      name: 'Garage Security Gate',
-      position: new THREE.Vector3(14.5, 0, 8),
+      name: 'Underground Getaway Van',
+      position: new THREE.Vector3(8.5, -8, 32),
       color: 0xffd700,
       difficulty: 'Medium'
     });
