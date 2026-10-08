@@ -14,6 +14,9 @@ export class MainMenu {
 
     // Inputs
     this.nameInput = document.getElementById('player-name-input');
+    this.nameInputWrapper = document.getElementById('name-input-wrapper');
+    this.nameErrorMsg = document.getElementById('name-error-msg');
+    this.nameStatusHint = document.getElementById('name-status-hint');
     this.diffSelect = document.getElementById('difficulty-select');
 
     // Menu Buttons
@@ -49,6 +52,7 @@ export class MainMenu {
     this.btnAbort = document.getElementById('btn-abort');
 
     this.setupListeners();
+    this.setupNameValidation();
     this.initClock();
     this.initCardTilt();
     this.initMenuParticles();
@@ -63,6 +67,12 @@ export class MainMenu {
           e.preventDefault();
           e.stopPropagation();
         }
+
+        const validName = this.validateName(true);
+        if (!validName) {
+          return; // Block start until a new name is entered!
+        }
+
         try {
           audioManager.ensureContext();
           audioManager.playKeycardChime();
@@ -70,14 +80,13 @@ export class MainMenu {
           console.warn('Audio start error:', err);
         }
 
-        const name = (this.nameInput && this.nameInput.value.trim()) || 'CYBER_GHOST';
         const difficulty = (this.diffSelect && this.diffSelect.value) || 'normal';
 
         this.hideMainMenu();
 
         if (this.onStartGame) {
           this.onStartGame({
-            name,
+            name: validName,
             difficulty,
             controlScheme: 'gesture'
           });
@@ -187,6 +196,102 @@ export class MainMenu {
     }
     if (this.particlesControl) {
       this.particlesControl.start();
+    }
+    this.validateName(false);
+  }
+
+  setupNameValidation() {
+    if (!this.nameInput) return;
+
+    // Check on input keystrokes
+    this.nameInput.addEventListener('input', () => {
+      const val = this.nameInput.value.trim();
+      if (!val || val.toUpperCase() === 'CYBER_GHOST') {
+        if (this.nameStatusHint) {
+          this.nameStatusHint.textContent = 'NEW NAME REQUIRED';
+          this.nameStatusHint.classList.remove('hint-valid');
+          this.nameStatusHint.classList.add('hint-required');
+        }
+      } else {
+        this.clearNameError();
+        if (this.nameStatusHint) {
+          this.nameStatusHint.textContent = '✓ CALLSIGN READY';
+          this.nameStatusHint.classList.remove('hint-required');
+          this.nameStatusHint.classList.add('hint-valid');
+        }
+      }
+    });
+
+    // Support pressing Enter inside the input to start
+    this.nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.btnPlay) {
+          this.btnPlay.click();
+        }
+      }
+    });
+  }
+
+  validateName(showFeedback = false) {
+    const raw = this.nameInput ? this.nameInput.value.trim() : '';
+    const upper = raw.toUpperCase();
+
+    if (!raw) {
+      if (showFeedback) {
+        this.showNameError('⚠️ Please enter a codename to start the heist!');
+      }
+      return null;
+    }
+
+    if (upper === 'CYBER_GHOST') {
+      if (showFeedback) {
+        this.showNameError('⚠️ Default callsign "CYBER_GHOST" is compromised. You must enter a new callsign!');
+      }
+      return null;
+    }
+
+    if (raw.length < 2) {
+      if (showFeedback) {
+        this.showNameError('⚠️ Callsign must be at least 2 characters long!');
+      }
+      return null;
+    }
+
+    this.clearNameError();
+    return raw;
+  }
+
+  showNameError(message) {
+    if (this.nameErrorMsg) {
+      this.nameErrorMsg.textContent = message;
+      this.nameErrorMsg.classList.remove('hidden');
+    }
+    if (this.nameInputWrapper) {
+      this.nameInputWrapper.classList.remove('input-error');
+      // Force DOM reflow to re-trigger CSS shake animation
+      void this.nameInputWrapper.offsetWidth;
+      this.nameInputWrapper.classList.add('input-error');
+    }
+    if (this.nameStatusHint) {
+      this.nameStatusHint.textContent = 'NEW NAME REQUIRED';
+      this.nameStatusHint.classList.remove('hint-valid');
+      this.nameStatusHint.classList.add('hint-required');
+    }
+    if (this.nameInput) {
+      this.nameInput.focus();
+    }
+    try {
+      audioManager.playAccessDenied();
+    } catch (e) {}
+  }
+
+  clearNameError() {
+    if (this.nameErrorMsg) {
+      this.nameErrorMsg.classList.add('hidden');
+    }
+    if (this.nameInputWrapper) {
+      this.nameInputWrapper.classList.remove('input-error');
     }
   }
 

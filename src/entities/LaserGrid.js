@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 
 export class LaserGrid {
-  constructor(scene) {
+  constructor(scene, physics = null) {
     this.scene = scene;
+    this.physics = physics;
     this.isDeactivated = false;
     this.tripCooldown = 0;
 
@@ -66,6 +67,81 @@ export class LaserGrid {
     const rightPost = new THREE.Mesh(postGeo, this.emitterMetalMat);
     rightPost.position.set(3.6, -8.0 + postHeight / 2, this.zMax);
     this.group.add(rightPost);
+
+    // --- SOLID REINFORCED SECURITY SIDE WINGS ---
+    // Closes and solidifies the gaps between corridor walls and laser emitter pillars
+    const wingMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const accentMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      metalness: 0.6,
+      roughness: 0.3
+    });
+    const hazardStripeMat = new THREE.MeshStandardMaterial({
+      color: 0xeab308,
+      metalness: 0.5,
+      roughness: 0.3
+    });
+
+    // Left Side Security Bulkhead (Spans from corridor wall at Z = -18.0 to leftPost at Z = -16.4)
+    const leftWing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 6.0, 1.8), wingMat);
+    leftWing.position.set(4.0, -8.0 + 3.0, -17.1);
+    this.group.add(leftWing);
+
+    // Left Wing Front Trim & Hazard Accent
+    const leftTrim = new THREE.Mesh(new THREE.BoxGeometry(0.06, 5.6, 0.12), hazardStripeMat);
+    leftTrim.position.set(3.39, -8.0 + 3.0, -16.7);
+    this.group.add(leftTrim);
+
+    const leftStripe = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.15, 1.6), hazardStripeMat);
+    leftStripe.position.set(3.39, -8.0 + 1.2, -17.1);
+    this.group.add(leftStripe);
+
+    // Right Side Security Bulkhead (Spans from rightPost at Z = -11.6 to corridor wall at Z = -10.0)
+    const rightWing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 6.0, 1.8), wingMat);
+    rightWing.position.set(4.0, -8.0 + 3.0, -10.9);
+    this.group.add(rightWing);
+
+    // Right Wing Front Trim & Hazard Accent
+    const rightTrim = new THREE.Mesh(new THREE.BoxGeometry(0.06, 5.6, 0.12), hazardStripeMat);
+    rightTrim.position.set(3.39, -8.0 + 3.0, -11.3);
+    this.group.add(rightTrim);
+
+    const rightStripe = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.15, 1.6), hazardStripeMat);
+    rightStripe.position.set(3.39, -8.0 + 1.2, -10.9);
+    this.group.add(rightStripe);
+
+    // Overhead Armored Header spanning entire doorway width above laser clearance
+    const topHeader = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 8.0), accentMat);
+    topHeader.position.set(4.0, -8.0 + 4.9, this.centerZ);
+    this.group.add(topHeader);
+
+    // Register Solid Physics Colliders into Physics Engine
+    if (this.physics) {
+      // Left Wing + Left Pillar Solid Collider Box
+      const leftColBox = new THREE.Box3(
+        new THREE.Vector3(3.35, -8.0, -18.1),
+        new THREE.Vector3(4.65, -2.0, -16.25)
+      );
+      this.physics.addCollider(leftColBox);
+
+      // Right Wing + Right Pillar Solid Collider Box
+      const rightColBox = new THREE.Box3(
+        new THREE.Vector3(3.35, -8.0, -11.75),
+        new THREE.Vector3(4.65, -2.0, -9.9)
+      );
+      this.physics.addCollider(rightColBox);
+
+      // Overhead Lintel Collider Box
+      const topColBox = new THREE.Box3(
+        new THREE.Vector3(3.35, -4.2, -16.25),
+        new THREE.Vector3(4.65, -2.0, -11.75)
+      );
+      this.physics.addCollider(topColBox);
+    }
 
     // Add glowing lens rings on each pillar for each beam height
     this.emitterLenses = [];

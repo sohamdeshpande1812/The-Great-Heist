@@ -976,9 +976,12 @@ export class FacilityMap {
     this.vaultDoor = Props.createVaultDoor(new THREE.Vector3(4.5, y, -14), Math.PI / 2);
     this.scene.add(this.vaultDoor.group);
     this.physics.addDoor(this.vaultDoor); // Solid physics collider blocks entry when closed!
+    if (this.vaultDoor.sideColliders) {
+      this.vaultDoor.sideColliders.forEach(col => this.physics.addCollider(col));
+    }
 
-    // High-Tech Infrared Laser Grid guarding Vault Entrance
-    this.laserGrid = new LaserGrid(this.scene);
+    // High-Tech Infrared Laser Grid guarding Vault Entrance (with solid security wings and colliders)
+    this.laserGrid = new LaserGrid(this.scene, this.physics);
 
     this.scene.add(Props.createSignboard(new THREE.Vector3(4.5, y + 5.2, -14), 'HIGH SECURITY MAIN VAULT', 0xffd700, -Math.PI / 2).group);
 

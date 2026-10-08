@@ -304,13 +304,14 @@
         <div class="card-field-group">
           <div class="field-label-row">
             <label for="player-name-input">OPERATIVE CALLSIGN</label>
-            <span class="field-hint">MAX 15 CHARS</span>
+            <span class="field-hint hint-required" id="name-status-hint">NEW NAME REQUIRED</span>
           </div>
-          <div class="input-glow-wrapper">
+          <div class="input-glow-wrapper" id="name-input-wrapper">
             <span class="input-prefix">AGENT //</span>
-            <input type="text" id="player-name-input" maxlength="15" value="CYBER_GHOST" placeholder="Enter codename..." autocomplete="off" spellcheck="false" />
+            <input type="text" id="player-name-input" maxlength="15" value="" placeholder="ENTER NEW CALLSIGN..." autocomplete="off" spellcheck="false" />
             <span class="input-pulse-cursor"></span>
           </div>
+          <div id="name-error-msg" class="name-error-msg hidden">⚠️ You must change your callsign before starting the heist!</div>
         </div>
 
         <!-- Operative Control Protocol (Fixed to 3 Hand Gestures + Mouse) -->

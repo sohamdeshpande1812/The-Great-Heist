@@ -396,12 +396,24 @@ export class Props {
     const minX = isRotated ? position.x - halfThick : position.x - halfW;
     const maxX = isRotated ? position.x + halfThick : position.x + halfW;
     const minZ = isRotated ? position.z - halfW : position.z - halfThick;
-    const maxZ = isRotated ? position.z + halfW : position.z + halfThick;
-
+    // When rotated (Math.PI / 2), opening is along Z from position.z - 2.4 to position.z + 2.4
+    // The central sliding blast door collider (active only when closed):
     const colliderBox = new THREE.Box3(
-      new THREE.Vector3(minX, position.y, minZ),
-      new THREE.Vector3(maxX, position.y + height, maxZ)
+      new THREE.Vector3(minX, position.y, isRotated ? position.z - 2.4 : minZ),
+      new THREE.Vector3(maxX, position.y + height, isRotated ? position.z + 2.4 : maxZ)
     );
+
+    // Permanent solid side columns (never unblocked when door opens):
+    const sideColliders = [
+      new THREE.Box3(
+        new THREE.Vector3(minX, position.y, minZ),
+        new THREE.Vector3(maxX, position.y + height, isRotated ? position.z - 2.4 : minZ + 1.6)
+      ),
+      new THREE.Box3(
+        new THREE.Vector3(minX, position.y, isRotated ? position.z + 2.4 : maxZ - 1.6),
+        new THREE.Vector3(maxX, position.y + height, maxZ)
+      )
+    ];
 
     return {
       group,
@@ -412,6 +424,7 @@ export class Props {
       openProgress: 0,
       position: position.clone(),
       colliderBox,
+      sideColliders,
       type: 'vault',
       update(delta) {
         if (this.isOpen) {
