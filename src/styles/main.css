@@ -2504,22 +2504,24 @@ html, body {
 
 /* Modals */
 .modal-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 80;
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(3, 6, 12, 0.85);
   backdrop-filter: blur(12px);
   transition: opacity 0.3s ease;
+  pointer-events: auto;
 }
 
 .modal-overlay.hidden {
   display: none !important;
+  pointer-events: none !important;
 }
 
 .modal-dialog {
