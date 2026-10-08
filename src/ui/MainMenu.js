@@ -186,9 +186,9 @@ export class MainMenu {
   }
 
   applySettings() {
-    const master = this.masterVol ? Number(this.masterVol.value) / 100 : 0.8;
-    const sfx = this.sfxVol ? Number(this.sfxVol.value) / 100 : 0.9;
-    const music = this.musicVol ? Number(this.musicVol.value) / 100 : 0.65;
+    const master = this.masterVol ? Number(this.masterVol.value) / 100 : 0.1;
+    const sfx = this.sfxVol ? Number(this.sfxVol.value) / 100 : 0.1;
+    const music = this.musicVol ? Number(this.musicVol.value) / 100 : 0.1;
     const sens = this.sensSlider ? Number(this.sensSlider.value) : 5;
     const graphics = this.graphicsPreset ? this.graphicsPreset.value : 'high';
     const gesturePip = this.settingGesturePip ? this.settingGesturePip.value : 'show';

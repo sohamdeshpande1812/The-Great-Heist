@@ -7,9 +7,9 @@ class AudioManager {
     this.sfxGain = null;
     this.musicGain = null;
 
-    this.masterVolume = 0.8;
-    this.sfxVolume = 0.9;
-    this.musicVolume = 0.65;
+    this.masterVolume = 0.1;
+    this.sfxVolume = 0.1;
+    this.musicVolume = 0.1;
 
     this.isMusicPlaying = false;
     this.musicInterval = null;
