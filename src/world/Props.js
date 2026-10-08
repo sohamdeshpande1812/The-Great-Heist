@@ -396,6 +396,7 @@ export class Props {
     const minX = isRotated ? position.x - halfThick : position.x - halfW;
     const maxX = isRotated ? position.x + halfThick : position.x + halfW;
     const minZ = isRotated ? position.z - halfW : position.z - halfThick;
+    const maxZ = isRotated ? position.z + halfW : position.z + halfThick;
     // When rotated (Math.PI / 2), opening is along Z from position.z - 2.4 to position.z + 2.4
     // The central sliding blast door collider (active only when closed):
     const colliderBox = new THREE.Box3(

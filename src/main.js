@@ -137,6 +137,7 @@ class Game {
     this.mainMenu = new MainMenu({
       onStartGame: (cfg) => this.startGame(cfg),
       onResumeSession: () => this.sessionModal.show({ mode: 'load', game: this }),
+      onOpenLeaderboard: () => this.leaderboardView.show(),
       onSettingsChanged: (cfg) => {
         if (cfg.sens) this.input.setSensitivity(cfg.sens);
         if (cfg.graphics) this.renderer.setGraphicsQuality(cfg.graphics);

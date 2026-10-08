@@ -5,6 +5,7 @@ export class MainMenu {
     this.onStartGame = options.onStartGame;
     this.onSettingsChanged = options.onSettingsChanged;
     this.onResumeSession = options.onResumeSession;
+    this.onOpenLeaderboard = options.onOpenLeaderboard;
 
     // Screens & Modals
     this.mainMenuScreen = document.getElementById('main-menu');
@@ -117,6 +118,18 @@ export class MainMenu {
     if (this.btnHtpGotIt) {
       this.btnHtpGotIt.addEventListener('click', () => {
         this.htpModal.classList.add('hidden');
+      });
+    }
+
+    // Leaderboard / Records
+    if (this.btnLeaderboard) {
+      this.btnLeaderboard.addEventListener('click', () => {
+        if (this.onOpenLeaderboard) {
+          this.onOpenLeaderboard();
+        } else {
+          const lb = document.getElementById('modal-leaderboard');
+          if (lb) lb.classList.remove('hidden');
+        }
       });
     }
 
